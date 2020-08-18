@@ -9,5 +9,5 @@ function draw() {
 	background(0);
 	fill(255);
 	textAlign(LEFT,TOP);
-	text("we out here",4,4);
+	text("we out here",mouseX+4,mouseY+4);
 }

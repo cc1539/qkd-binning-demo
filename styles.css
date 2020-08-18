@@ -52,6 +52,7 @@ canvas {
 	height: 100%;
 	
 	border-right: 1px solid #444444;
+	box-sizing: border-box;
 }
 
 #general-control-panel {
@@ -63,4 +64,5 @@ canvas {
 	height: 100%;
 	
 	border-left: 1px solid #444444;
+	box-sizing: border-box;
 }
