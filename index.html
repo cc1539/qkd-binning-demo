@@ -12,10 +12,29 @@
 		<script src="main.js"></script>
 	</head>
 	<body>
+	
 		<div id="canvas-holder"></div>
 		<div id="control-panel">
 			<div id="graph-control-panel"></div>
 			<div id="general-control-panel"></div>
+			
+			<template id="graph-control-template">
+				<div class="graph-control">
+
+					<label for="graph-type">Binning Scheme:</label>
+					<select name="graph-type">
+						<option value="sb">Simple Binning</option>
+						<option value="ab">Adaptive Binning</option>
+						<option value="aab">Adaptive Aggregated Binning</option>
+						<option value="af">Adaptive Framing</option>
+					</select>
+					
+					<label for="graph-color">Color:</label>
+					<input type="color" id="graph-color" name="graph-color">
+				</div>
+			</template>
+			
 		</div>
+		
 	</body>
 </html>
