@@ -27,6 +27,28 @@
 	width: 100%;
 	height: var(--control-panel-height);
 	
-	background: #444444;
+	background: #333333;
 	box-shadow: 0 0 10px black;
+}
+
+#graph-control-panel {
+	
+	position: relative;
+	left: 0;
+	
+	width: 50%;
+	height: 100%;
+	
+	background: red;
+}
+
+#general-control-panel {
+	
+	position: relative;
+	right: 0;
+	
+	width: 50%;
+	height: 100%;
+	
+	background: green;
 }
