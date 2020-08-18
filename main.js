@@ -6,5 +6,8 @@ function setup() {
 }
 
 function draw() {
-	background(255);
+	background(0);
+	fill(255);
+	textAlign(LEFT,TOP);
+	text("we out here",4,4);
 }

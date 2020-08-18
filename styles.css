@@ -11,7 +11,7 @@
 canvas {
 	position: relative;
 	left: 50%;
-	right: 50%;
+	top: 50%;
 	transform: translate(-50%,-50%);
 	
 	width: 840px;
@@ -51,7 +51,7 @@ canvas {
 	width: 50%;
 	height: 100%;
 	
-	background: red;
+	border-right: 1px solid #444444;
 }
 
 #general-control-panel {
@@ -62,5 +62,5 @@ canvas {
 	width: 50%;
 	height: 100%;
 	
-	background: green;
+	border-left: 1px solid #444444;
 }
