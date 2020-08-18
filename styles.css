@@ -5,18 +5,28 @@
 }
 
 :root {
-	--control-panel-height: 300px;
+	--control-panel-height: 200px;
 }
 
 #canvas-holder {
+	
+	position: absolute;
+	top: 0;
+	
 	height: calc(100% - var(--control-panel-height));
 	width: 100%;
+	
 	background: #111111;
 }
 
 #control-panel {
+	
+	position: absolute;
+	bottom: 0;
+	
 	width: 100%;
 	height: var(--control-panel-height);
+	
 	background: #444444;
 	box-shadow: 0 0 10px black;
 }
