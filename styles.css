@@ -8,6 +8,12 @@
 	--control-panel-height: 200px;
 }
 
+canvas {
+	width: 840px;
+	height: 640px;
+	box-shadow: 0 0 5px black;
+}
+
 #canvas-holder {
 	
 	position: absolute;
@@ -29,12 +35,13 @@
 	
 	background: #333333;
 	box-shadow: 0 0 10px black;
+	
+	float: left;
 }
 
 #graph-control-panel {
 	
 	position: relative;
-	left: 0;
 	
 	width: 50%;
 	height: 100%;
@@ -45,7 +52,6 @@
 #general-control-panel {
 	
 	position: relative;
-	right: 0;
 	
 	width: 50%;
 	height: 100%;
