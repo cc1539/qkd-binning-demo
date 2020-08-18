@@ -1,0 +1,22 @@
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+:root {
+	--control-panel-height: 300px;
+}
+
+#canvas-holder {
+	height: calc(100% - var(--control-panel-height));
+	width: 100%;
+	background: #111111;
+}
+
+#control-panel {
+	width: 100%;
+	height: var(--control-panel-height);
+	background: #444444;
+	box-shadow: 0 0 10px black;
+}
