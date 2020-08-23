@@ -176,7 +176,10 @@ function setup() {
 	}
 	}
 	
-	new Worker("updateThread.js");
+	let worker = new Worker("updateThread.js");
+	worker.postMessage({
+		job: updateGraphs
+	});
 	
 	for(let i=0;i<labelText.length;i++) {
 		labelText[i] = bins[i][0].getName();
