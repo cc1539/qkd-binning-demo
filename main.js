@@ -145,6 +145,7 @@ function updateGraphs() {
 			let h = (keyIsPressed&&keyCode==CONTROL)?1:entropy(p);
 			rateGraphs[i][j] = h==0?0:(bins[i][j].getRawKeyRate()/h);
 			randGraphs[i][j] = bins[i][j].getAnalysis().getRandomness();
+			console.log(bins[i][j].getAnalysis().getRandomness());
 		}
 	}
 	
