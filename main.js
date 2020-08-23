@@ -58,6 +58,14 @@ function labels(x, y, w, h, main, axisX, axisY) {
 /************** MORE MATH **************/
 
 
+function log2(n)
+	let m;
+	for(m=0;n>0;m++) {
+		n >>= 1;
+	}
+	return m;
+}
+
 function log2ceil(n) { // smallest integer m such that 2m >= n
 	for(let m=1;;m*=2) {
 		if(m>=n) {
@@ -93,6 +101,8 @@ function entropy(p, base) {
 
 /************** MAIN / USER INTERFACE **************/
 
+let frameSize = 8;
+let deadTime = 0;
 
 let graphSamples = 1000;
 
@@ -173,8 +183,8 @@ function setup() {
 	
 	for(let i=0;i<binTypes.length;i++) {
 	for(let j=0;j<graphSamples;j++) {
-		bins[i][j].deadTime = 0;
-		bins[i][j].setFrameSize(8);
+		bins[i][j].deadTime = deadTime;
+		bins[i][j].setFrameSize(frameSize);
 		//bins[i][j].setBinSize(1<<i);
 		bins[i][j].setBinSize(1);
 		bins[i][j].getAnalysis().setLetterSize(3);
