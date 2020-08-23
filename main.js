@@ -121,7 +121,12 @@ let graphScaleY = 1;
 let notif;
 let notifTimer;
 
+let graphUpdateInterval;
+
 function updateGraphs() {
+	if(graphUpdateInverval!=null) {
+		clearInterval(graphUpdateInterval);
+	}
 	
 	for(let i=0;i<bins.length;i++) {
 		for(let j=0;j<bins[0].length;j++) {
@@ -143,6 +148,7 @@ function updateGraphs() {
 		}
 	}
 	
+	graphUpdateInterval = setInterval(updateGraphs,100);
 }
 
 function reset() {
