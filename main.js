@@ -118,10 +118,10 @@ let labelText = Array(binTypes.length);
 let graphScaleX = 1;
 let graphScaleY = 1;
 
-let notif;
-let notifTimer;
+let notif = "";
+let notifTimer = 0;
 
-let graphUpdateInterval;
+let graphUpdateInterval = null;
 
 function updateGraphs() {
 	if(graphUpdateInverval!=null) {
