@@ -2,6 +2,7 @@
 class AdaptiveAggregatedBinning extends SimpleBinning {
 	
 	constructor() {
+		super();
 		this.publicChannel = new BitStream();
 	}
 	
@@ -11,29 +12,29 @@ class AdaptiveAggregatedBinning extends SimpleBinning {
 	
 	handleOutput() {
 		
-		if(length()>=n) {
-			boolean[] frame = toArray(n);
-			int l = 0;
-			for(int i=0;i<frame.length;i++) {
+		if(this.length()>=this.n) {
+			let frame = this.toArray(this.n);
+			let l = 0;
+			for(let i=0;i<frame.length;i++) {
 				if(frame[i]) {
 					l++;
 				}
 			}
-			if(l>n/2) {
-				l = n-l;
+			if(l>this.n/2) {
+				l = this.n-l;
 			}
 			if(l>0) {
-				k = log2ceil(l);
-				int index = 0;
-				for(int i=n/k;i>1;i>>>=1) {
-					boolean outBit = Math.random()>.5;
-					output.write(outBit);
-					analysis.write(outBit);
+				this.k = log2ceil(l);
+				let index = 0;
+				for(let i=this.n/this.k;i>1;i>>>=1) {
+					let outBit = Math.random()>.5;
+					this.output.write(outBit);
+					this.analysis.write(outBit);
 					if(outBit) {
 						index += 1;
 					}
 					index <<= 1;
-					bitsOut++;
+					this.bitsOut++;
 				}
 				//publicChannel.write(index);
 			}

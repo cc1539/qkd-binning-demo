@@ -46,7 +46,7 @@ function labels(x, y, w, h, main, axisX, axisY) {
 	push();
 	translate(x,y+h/2);
 	rotate(-HALF_PI);
-	text(axisY,0,-32);
+	text(axisY,0,-40);
 	pop();
 	textAlign(CENTER,TOP);
 	text(axisX,x+w/2,y+h+20);
@@ -58,9 +58,9 @@ function labels(x, y, w, h, main, axisX, axisY) {
 /************** MORE MATH **************/
 
 
-function log2(n)
+function log2(n) {
 	let m;
-	for(m=0;n>0;m++) {
+	for(m=0;n>1;m++) {
 		n >>= 1;
 	}
 	return m;
@@ -108,12 +108,9 @@ let graphSamples = 1000;
 
 let binTypes = [
 	SimpleBinning.prototype,
-	//AdaptiveBinning.prototype,
-	//AdaptiveAggregatedBinning.prototype,
-	//AdaptiveFraming.prototype,
-	SimpleBinning.prototype,
-	SimpleBinning.prototype,
-	SimpleBinning.prototype,
+	AdaptiveBinning.prototype,
+	AdaptiveAggregatedBinning.prototype,
+	AdaptiveFraming.prototype,
 ];
 
 let bins = Array(binTypes.length).fill(0).map((x,i)=>Array(graphSamples).fill(0).map(y=>new binTypes[i].constructor()))
@@ -133,17 +130,20 @@ let notifTimer = 0;
 
 let graphUpdateInterval = null;
 
-function updateGraphs() {
+async function updateGraphs() {
+	
 	if(graphUpdateInterval!=null) {
 		clearInterval(graphUpdateInterval);
 	}
+	
+	await !keyIsPressed;
 	
 	for(let i=0;i<bins.length;i++) {
 		for(let j=0;j<bins[0].length;j++) {
 			
 			let p = j/(bins[0].length-1);
 			
-			for(let k=0;k<2048;k++) {
+			for(let k=0;k<32;k++) {
 				bins[i][j].write(Math.random()<p);
 			}
 			
@@ -158,7 +158,7 @@ function updateGraphs() {
 		}
 	}
 	
-	graphUpdateInterval = setInterval(updateGraphs,100);
+	graphUpdateInterval = setInterval(updateGraphs,10);
 }
 
 function reset() {
@@ -179,7 +179,7 @@ function setup() {
 	let canvas = document.getElementById("defaultCanvas0");
 	document.getElementById("canvas-holder").appendChild(canvas);
 	
-	//textFont(createFont("source code pro bold",12));
+	textFont("Source Code Pro");
 	
 	for(let i=0;i<binTypes.length;i++) {
 	for(let j=0;j<graphSamples;j++) {
@@ -187,7 +187,7 @@ function setup() {
 		bins[i][j].setFrameSize(frameSize);
 		//bins[i][j].setBinSize(1<<i);
 		bins[i][j].setBinSize(1);
-		bins[i][j].getAnalysis().setLetterSize(3);
+		bins[i][j].getAnalysis().setLetterSize(log2(frameSize));
 		//bins[i][j].getAnalysis().setLetterSize(6-i);
 	}
 	}
@@ -225,11 +225,13 @@ function keyTyped() {
 
 function draw() {
 	
+	background(0);
+	
 	if(keyIsPressed) {
 		switch(key) {
 			case 's': {
 				notify("Scaling mode");
-				if(mousePressed) {
+				if(mouseIsPressed) {
 					if(mouseButton==LEFT) {
 						graphScaleY *= exp(-(mouseY-pmouseY)*.01);
 					} else if(mouseButton==RIGHT) {
@@ -239,8 +241,6 @@ function draw() {
 			} break;
 		}
 	}
-	
-	background(0);
 	
 	if(notifTimer>0) {
 		fill(min(255,notifTimer));
@@ -256,7 +256,7 @@ function draw() {
 	let w = width-border*2;
 	let h = height-border*2;
 	grid(x,y,w,h,w*.1*graphScaleX,h*.1*graphScaleY,.1,.1);
-	labels(x,y,w,h,"n=64","Probability (p)",
+	labels(x,y,w,h,"n="+frameSize,"Probability (p)",
 		(keyIsPressed&&keyCode==SHIFT)?"Randomness (H(X)h(p))":
 		(keyIsPressed&&keyCode==CONTROL)?"Raw Key Rate (r)":
 		"Photon Utilization (r/h(p))");

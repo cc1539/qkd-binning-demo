@@ -58,7 +58,7 @@ class BitStream {
 	clear() {
 		this.readIndex = 0;
 		this.writeIndex = 0;
-		this.memory.clear();
+		this.memory = [];
 	}
 	
 }

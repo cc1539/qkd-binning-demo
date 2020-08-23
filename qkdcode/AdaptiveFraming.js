@@ -2,6 +2,7 @@
 class AdaptiveFraming extends SimpleBinning {
 	
 	constructor() {
+		super();
 		this.publicChannel = new BitStream();
 		this.bitQueue = 0;
 	}
@@ -12,28 +13,28 @@ class AdaptiveFraming extends SimpleBinning {
 	
 	handleOutput() {
 		
-		if(length()>=n) {
-			boolean[] frame = toArray(n);
-			int l = 0;
-			for(int i=0;i<frame.length;i++) {
+		if(this.length()>=this.n) {
+			let frame = this.toArray(this.n);
+			let l = 0;
+			for(let i=0;i<frame.length;i++) {
 				if(frame[i]) {
 					l++;
 				}
 			}
-			if(l>n/2) {
-				l = n-l;
+			if(l>this.n/2) {
+				l = this.n-l;
 			}
 			if(l>0) {
-				int m = n/l;
-				int k = n%l;
-				bitQueue += k*Math.log(m+1);
-				bitQueue += (l-k)*Math.log(m);
-				while(bitQueue>=1) {
-					boolean outBit = Math.random()>.5;
-					output.write(outBit);
-					analysis.write(outBit);
-					bitsOut++;
-					bitQueue--;
+				let m = this.n/l;
+				let k = this.n%l;
+				this.bitQueue += this.k*Math.log(m+1);
+				this.bitQueue += (l-this.k)*Math.log(m);
+				while(this.bitQueue>=1) {
+					let outBit = Math.random()>.5;
+					this.output.write(outBit);
+					this.analysis.write(outBit);
+					this.bitsOut++;
+					this.bitQueue--;
 				}
 				//publicChannel.write(index);
 			}
