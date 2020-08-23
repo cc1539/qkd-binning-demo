@@ -71,6 +71,8 @@ class RandomAnalysis extends BitStream {
 				maxCount = this.bins[i];
 			}
 		}
+		console.log(maxCount+"/"+this.letterSamples+" = "+(maxCount/this.letterSamples));
+		console.log(this.bins.length);
 		return -Math.log(maxCount/this.letterSamples)/Math.log(this.bins.length);
 	}
 	
