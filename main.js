@@ -124,7 +124,7 @@ let notifTimer = 0;
 let graphUpdateInterval = null;
 
 function updateGraphs() {
-	if(graphUpdateInverval!=null) {
+	if(graphUpdateInterval!=null) {
 		clearInterval(graphUpdateInterval);
 	}
 	
