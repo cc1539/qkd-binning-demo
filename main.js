@@ -120,7 +120,7 @@ let graphScaleY = 1;
 
 let notif;
 let notifTimer;
-/*
+
 function updateGraphs() {
 	
 	for(let i=0;i<bins.length;i++) {
@@ -144,7 +144,7 @@ function updateGraphs() {
 	}
 	
 }
-*/
+
 function reset() {
 	for(let i=0;i<bins.length;i++) {
 	for(let j=0;j<bins[0].length;j++) {
@@ -176,18 +176,7 @@ function setup() {
 	}
 	}
 	
-	let worker = new Worker("updateThread.js");
-	worker.onmessage = (e)=> {
-		e = e.data;
-		console.log("hey");
-		bins = JSON.parse(e.bins);
-		rateGraphs = JSON.parse(e.rateGraphs);
-		randGraphs = JSON.parse(e.randGraphs);
-	};
-	worker.postMessage({
-		bins:JSON.stringify(bins),
-		rateGraphs:JSON.stringify(rateGraphs),
-		randGraphs:JSON.stringify(randGraphs)});
+	updateGraphs();
 	
 	for(let i=0;i<labelText.length;i++) {
 		labelText[i] = bins[i][0].getName();
