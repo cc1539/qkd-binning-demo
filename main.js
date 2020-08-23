@@ -142,7 +142,7 @@ function updateGraphs() {
 				bins[i][j].getOutput().read();
 			}
 			
-			let h = (keyPressed&&keyCode==CONTROL)?1:entropy(p);
+			let h = (keyIsPressed&&keyCode==CONTROL)?1:entropy(p);
 			rateGraphs[i][j] = h==0?0:(bins[i][j].getRawKeyRate()/h);
 			randGraphs[i][j] = bins[i][j].getAnalysis().getRandomness();
 		}
@@ -247,13 +247,13 @@ function draw() {
 	let h = height-border*2;
 	grid(x,y,w,h,w*.1*graphScaleX,h*.1*graphScaleY,.1,.1);
 	labels(x,y,w,h,"n=64","Probability (p)",
-		(keyPressed&&keyCode==SHIFT)?"Randomness (H(X)h(p))":
-		(keyPressed&&keyCode==CONTROL)?"Raw Key Rate (r)":
+		(keyIsPressed&&keyCode==SHIFT)?"Randomness (H(X)h(p))":
+		(keyIsPressed&&keyCode==CONTROL)?"Raw Key Rate (r)":
 		"Photon Utilization (r/h(p))");
 	for(let i=0;i<rateGraphs.length;i++) {
 		noFill();
 		stroke(palette[i]);
-		plot((keyPressed&&keyCode==SHIFT)?randGraphs[i]:rateGraphs[i],
+		plot((keyIsPressed&&keyCode==SHIFT)?randGraphs[i]:rateGraphs[i],
 				border+1,h+border-1,w*graphScaleX-2,h*graphScaleY-2);
 	}
 	
