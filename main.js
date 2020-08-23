@@ -177,9 +177,8 @@ function setup() {
 	}
 	
 	let worker = new Worker("updateThread.js");
-	worker.postMessage({
-		job: JSON.stringify(updateGraphs)
-	});
+	console.log(JSON.stringify(updateGraphs));
+	worker.postMessage({data: JSON.stringify(updateGraphs)});
 	
 	for(let i=0;i<labelText.length;i++) {
 		labelText[i] = bins[i][0].getName();

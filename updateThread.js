@@ -1,5 +1,5 @@
 
 onmessage = (e)=>{
-	console.log(e.job);
-	JSON.parse(e.job)();
+	console.log(e.data);
+	JSON.parse(e.data)();
 };
