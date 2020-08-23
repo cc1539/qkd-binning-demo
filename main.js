@@ -178,6 +178,7 @@ function setup() {
 	
 	let worker = new Worker("updateThread.js");
 	worker.onmessage = (e)=> {
+		e = e.data;
 		bins = JSON.parse(e.bins);
 		rateGraphs = JSON.parse(e.rateGraphs);
 		randGraphs = JSON.parse(e.randGraphs);
