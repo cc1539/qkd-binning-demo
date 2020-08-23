@@ -258,6 +258,5 @@ function draw() {
 				border+1,h+border-1,w*graphScaleX-2,h*graphScaleY-2);
 	}
 	
-	//surface.setTitle("FPS: "+frameRate);
-	document.title = "QKD Binning Demo | FPS: "+frameRate().toFixed(1);
+	//document.title = "QKD Binning Demo | FPS: "+frameRate().toFixed(1);
 }
