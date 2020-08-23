@@ -197,7 +197,7 @@ function setup() {
 	
 }
 
-function keyPressed() {
+function keyTyped() {
 	switch(key) {
 		case 'r': {
 			reset();
@@ -215,7 +215,7 @@ function keyPressed() {
 
 function draw() {
 	
-	if(keyPressed) {
+	if(keyIsPressed) {
 		switch(key) {
 			case 's': {
 				notify("Scaling mode");
