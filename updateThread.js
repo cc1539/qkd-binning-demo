@@ -53,7 +53,6 @@ function updateGraphLoop() {
 
 onmessage = (e)=>{
 	e = e.data;
-	console.log(e);
 	bins = JSON.parse(e.bins);
 	rateGraphs = JSON.parse(e.rateGraphs);
 	randGraphs = JSON.parse(e.randGraphs);
