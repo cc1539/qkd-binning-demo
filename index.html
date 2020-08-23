@@ -9,7 +9,38 @@
 		<link href="styles.css" type="text/css" rel="stylesheet">
 		
 		<script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
+		
+		<script src="qkdcode/BitStream.js"></script>
+		<script src="qkdcode/RandomAnalysis.js"></script>
+		<script src="qkdcode/SimpleBinning.js"></script>
+		
 		<script src="main.js"></script>
+		
+		<script>
+			let bin = new SimpleBinning();
+			bin.setFrameSize(8);
+			bin.setBinSize(1);
+			bin.getAnalysis().setLetterSize(3);
+			
+			let input = "";
+			for(let j=0;j<8;j++) {
+				for(let i=0;i<8;i++) {
+					let bit = i==j;
+					bin.write(bit);
+					input += bit?'1':'0';
+				}
+			}
+			console.log(input);
+			
+			let output = "";
+			while(bin.getOutput().ready()) {
+				output += bin.getOutput().read()?'1':'0';
+			}
+			console.log(output);
+			
+			console.log(bin.getAnalysis().getSymbolicRandomness());
+		</script>
+		
 	</head>
 	<body>
 	
