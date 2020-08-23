@@ -1,9 +1,4 @@
 
 onmessage = (e)=>{
-	e.job();
+	JSON.parse(e.job)();
 };
-/*
-while(true) {
-	updateGraphs();
-}
-*/

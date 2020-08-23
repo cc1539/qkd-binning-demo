@@ -178,7 +178,7 @@ function setup() {
 	
 	let worker = new Worker("updateThread.js");
 	worker.postMessage({
-		job: updateGraphs
+		job: JSON.stringify(updateGraphs)
 	});
 	
 	for(let i=0;i<labelText.length;i++) {
