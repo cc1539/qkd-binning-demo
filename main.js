@@ -148,7 +148,7 @@ async function updateGraphs() {
 	}
 	
 	await !keyIsPressed;
-	
+
 	for(let i=0;i<bins.length;i++) {
 		for(let j=0;j<bins[0].length;j++) {
 			
@@ -226,11 +226,28 @@ function setup() {
 	let graphControlPanel = document.getElementById("graph-control-panel");
 	let controlTemplate = document.getElementById("graph-control-template");
 	for(let i=0;i<binTypes.length;i++) {
+		
 		let entry = controlTemplate.content.cloneNode(true);
-		let strColor = "#"+rgba2hex(palette[i]);
-		console.log(strColor);
-		entry.querySelector("#graph-color").value = strColor;
-		console.log(entry.querySelector("#graph-color").value);
+		let index = i;
+		
+		let colorPicker = entry.querySelector("#graph-color");
+		colorPicker.value = "#"+rgba2hex(palette[i]);
+		colorPicker.onchange = function() {
+			palette[index] = colorPicker.value;
+		};
+		
+		let schemeSelect = entry.querySelector("select");
+		schemeSelect.selectedIndex = i;
+		schemeSelect.onchange = function() {
+			bins[index] = Array(graphSamples).fill(0).map(y=>new binTypes[schemeSelect.selectedIndex].constructor());
+			bins[index].filter(y=>{
+				y.deadTime = deadTime;
+				y.setFrameSize(frameSize);
+				y.setBinSize(1);
+				y.getAnalysis().setLetterSize(log2(frameSize));
+			});
+		};
+		
 		graphControlPanel.appendChild(entry);
 	}
 	
