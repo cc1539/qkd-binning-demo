@@ -224,10 +224,12 @@ function keyTyped() {
 			reset();
 			notify("Data reset");
 		} break;
+		/*
 		case 'c': {
 			saveFrame("####.png");
 			notify("Snapshot taken");
 		} break;
+		*/
 		case 'n': {
 			
 		} break;
