@@ -20,33 +20,6 @@
 		
 		<script src="main.js"></script>
 		
-		<!--
-		<script>
-			let bin = new SimpleBinning();
-			bin.setFrameSize(8);
-			bin.setBinSize(1);
-			bin.getAnalysis().setLetterSize(3);
-			
-			let input = "";
-			for(let j=0;j<8;j++) {
-				for(let i=0;i<8;i++) {
-					let bit = i==j;
-					bin.write(bit);
-					input += bit?'1':'0';
-				}
-			}
-			console.log(input);
-			
-			let output = "";
-			while(bin.getOutput().ready()) {
-				output += bin.getOutput().read()?'1':'0';
-			}
-			console.log(output);
-			
-			console.log(bin.getAnalysis().getSymbolicMinEntropy());
-		</script>
-		-->
-		
 	</head>
 	<body>
 	
@@ -58,7 +31,8 @@
 			<template id="graph-control-template">
 				<div class="graph-control">
 					
-					<label for="graph-type">Binning Scheme: </label>
+					<input type="color" id="graph-color" name="graph-color">
+					
 					<select name="graph-type">
 						<option value="sb">Simple Binning</option>
 						<option value="ab">Adaptive Binning</option>
@@ -66,8 +40,6 @@
 						<option value="af">Adaptive Framing</option>
 					</select>
 					
-					<label for="graph-color"> | Color: </label>
-					<input type="color" id="graph-color" name="graph-color">
 				</div>
 			</template>
 			

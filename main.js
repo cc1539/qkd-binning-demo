@@ -185,6 +185,13 @@ function notify(text) {
 	notifTimer = 512;
 }
 
+function rgba2hex(value) {
+	return  ("0"+(value.levels[0].toString(16))).slice(-2)+
+			("0"+(value.levels[1].toString(16))).slice(-2)+
+			("0"+(value.levels[2].toString(16))).slice(-2);
+			//("0"+(value.levels[3].toString(16))).slice(-2);
+}
+
 function setup() {
 	createCanvas(840,640);
 	let canvas = document.getElementById("defaultCanvas0");
@@ -210,16 +217,21 @@ function setup() {
 	}
 	
 	palette = [
-		color(255,0,0),
 		color(0,0,255),
+		color(255,0,0),
 		color(255,255,0),
 		color(255,0,255),
 	];
 	
 	let graphControlPanel = document.getElementById("graph-control-panel");
-	let controlTemplate = document.getElementById("graph-control-template").content;
+	let controlTemplate = document.getElementById("graph-control-template");
 	for(let i=0;i<binTypes.length;i++) {
-		graphControlPanel.appendChild(controlTemplate.cloneNode(true));
+		let entry = controlTemplate.content.cloneNode(true);
+		let strColor = "#"+rgba2hex(palette[i]);
+		console.log(strColor);
+		entry.querySelector("#graph-color").value = strColor;
+		console.log(entry.querySelector("#graph-color").value);
+		graphControlPanel.appendChild(entry);
 	}
 	
 }
@@ -230,12 +242,6 @@ function keyTyped() {
 			reset();
 			notify("Data reset");
 		} break;
-		/*
-		case 'c': {
-			saveFrame("####.png");
-			notify("Snapshot taken");
-		} break;
-		*/
 		case 'n': {
 			
 		} break;

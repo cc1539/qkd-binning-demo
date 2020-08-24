@@ -4,6 +4,7 @@
 	padding: 0;
 	font-family: source code pro;
 	font-size: 10px;
+	border: 0;
 }
 
 :root {
@@ -55,6 +56,8 @@ canvas {
 	
 	border-right: 1px solid #444444;
 	box-sizing: border-box;
+	
+	padding: 5px;
 }
 
 #general-control-panel {
@@ -73,5 +76,21 @@ canvas {
 	margin-top: 5px;
 	margin-left: 5px;
 	color: white;
+	height: 25px;
 }
 
+.graph-control > input {
+	background-color: transparent;
+	width: 25px;
+	height: 100%;
+	margin-right: 5px;
+}
+
+.graph-control > select {
+	position: relative;
+	top: -5px;
+	left: -5px;
+	height: calc(100% - 7px);
+	border-radius: 3px;
+	font-style: bold;
+}
