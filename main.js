@@ -112,7 +112,7 @@ function entropy(p, base) {
 
 /************** MAIN / USER INTERFACE **************/
 
-let frameSize = 8;
+let frameSize = 16;
 let deadTime = 0;
 
 let graphSamples = 1000;
@@ -141,7 +141,7 @@ let notifTimer = 0;
 
 let graphUpdateInterval = null;
 
-async function updateGraphs() {
+function updateGraphs() {
 	
 	if(graphUpdateInterval!=null) {
 		clearInterval(graphUpdateInterval);
