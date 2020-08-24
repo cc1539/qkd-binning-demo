@@ -20,11 +20,13 @@ class AdaptiveAggregatedBinning extends SimpleBinning {
 					l++;
 				}
 			}
+			/*
 			if(l>this.n/2) {
 				l = this.n-l;
 			}
-			if(l>0) {
-				this.k = log2ceil(l);
+			*/
+			if(l>0 && l<this.n) {
+				this.k = l>this.n/2?log2floor(this.n-l):log2ceil(l);
 				let index = 0;
 				for(let i=this.n/this.k;i>1;i>>>=1) {
 					let outBit = Math.random()>.5;

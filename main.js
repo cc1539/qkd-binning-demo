@@ -66,7 +66,18 @@ function log2(n) {
 	return m;
 }
 
-function log2ceil(n) { // smallest integer m such that 2m >= n
+function log2floor(n) { // largest integer m such that 2^m <= n, return 2^m
+	for(let m=1;;m*=2) {
+		if(m>=n) {
+			if(m>n) {
+				m /= 2;
+			}
+			return m;
+		}
+	}
+}
+
+function log2ceil(n) { // smallest integer m such that 2^m >= n, return 2^m
 	for(let m=1;;m*=2) {
 		if(m>=n) {
 			return m;
