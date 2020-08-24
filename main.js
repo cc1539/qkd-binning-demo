@@ -216,6 +216,12 @@ function setup() {
 		color(255,0,255),
 	];
 	
+	let graphControlPanel = document.getElementById("graph-control-panel");
+	let controlTemplate = document.getElementById("graph-control-template").content;
+	for(let i=0;i<binTypes.length;i++) {
+		graphControlPanel.appendChild(controlTemplate.cloneNode(true));
+	}
+	
 }
 
 function keyTyped() {
