@@ -128,7 +128,7 @@ let bins = [];
 let rateGraphs = [];
 let randGraphs = [];
 
-let palette;
+let defaultPalette;
 
 let labelText = Array(binTypes.length);
 
@@ -139,6 +139,9 @@ let notif = "";
 let notifTimer = 0;
 
 let graphUpdateInterval = null;
+
+let graphControlPanel;
+let controlTemplate;
 
 async function updateGraphs() {
 	
@@ -185,6 +188,11 @@ function notify(text) {
 }
 
 function rgba2hex(value) {
+	if(value.levels==null) {
+		return  ("0"+((value>>>24)&0xFF).toString(16)).slice(-2)+
+				("0"+((value>>>16)&0xFF).toString(16)).slice(-2)+
+				("0"+((value>>> 8)&0xFF).toString(16)).slice(-2);
+	}
 	return  ("0"+(value.levels[0].toString(16))).slice(-2)+
 			("0"+(value.levels[1].toString(16))).slice(-2)+
 			("0"+(value.levels[2].toString(16))).slice(-2);
@@ -194,10 +202,16 @@ function getGraphControlIndex(obj) {
 	return Array.from(document.getElementById("graph-control-panel").children).indexOf(obj);
 }
 
+function getColorPicker(index) {
+	return graphControlPanel.children[index].querySelector("#graph-color");
+}
+
 function addGraph(typeIndex,index) {
+	
 	if(index==null) {
 		index = bins.length;
 	}
+	
 	let newBins = Array(graphSamples).fill(0).map(y=>new binTypes[typeIndex].constructor());
 	newBins.filter(y=>{
 		y.deadTime = deadTime;
@@ -208,39 +222,36 @@ function addGraph(typeIndex,index) {
 	bins.splice(index,0,newBins);
 	rateGraphs.splice(index,0,[]);
 	randGraphs.splice(index,0,[]);
-
-	let graphControlPanel = document.getElementById("graph-control-panel");
-	let controlTemplate = document.getElementById("graph-control-template");
 	
 	let entry = controlTemplate.content.cloneNode(true);
 	
-	if(palette[index]==null) {
-		palette[index] = color(255);
+	{ // scheme drop-down menu
+		let schemeSelect = entry.querySelector("select");
+		schemeSelect.selectedIndex = typeIndex;
+		schemeSelect.onchange = function() {
+			index = getGraphControlIndex(entry);
+			let color = getColorPicker(index).value;
+			deleteGraph(index);
+			addGraph(schemeSelect.selectedIndex,index);
+			getColorPicker(index).value = color;
+		};
 	}
 	
-	let colorPicker = entry.querySelector("#graph-color");
-	colorPicker.value = "#"+rgba2hex(palette[index]);
-	colorPicker.onchange = function() {
-		index = getGraphControlIndex(entry);
-		palette[index] = colorPicker.value;
-	};
+	{ // x-out button
+		let removeButton = entry.querySelector(".remove");
+		removeButton.onclick = function() {
+			index = getGraphControlIndex(entry);
+			deleteGraph(index);
+		};
+	}
 	
-	let schemeSelect = entry.querySelector("select");
-	schemeSelect.selectedIndex = typeIndex;
-	schemeSelect.onchange = function() {
-		index = getGraphControlIndex(entry);
-		deleteGraph(index);
-		addGraph(schemeSelect.selectedIndex,index);
-	};
+	{
+		let controlRow = graphControlPanel.children[index];
+		graphControlPanel.insertBefore(entry,controlRow);
+		entry = controlRow;
+	}
 	
-	let removeButton = entry.querySelector(".remove");
-	removeButton.onclick = function() {
-		index = getGraphControlIndex(entry);
-		deleteGraph(index);
-	};
-	
-	graphControlPanel.insertBefore(entry,graphControlPanel.children[index]);
-	entry = graphControlPanel.children[index];
+	getColorPicker(index).value = "#FFFFFF";
 }
 
 function deleteGraph(index) {
@@ -250,14 +261,7 @@ function deleteGraph(index) {
 	bins.splice(index,1);
 	rateGraphs.splice(index,1);
 	randGraphs.splice(index,1);
-	let graphControlPanel = document.getElementById("graph-control-panel");
 	graphControlPanel.removeChild(graphControlPanel.children[index]);
-	Array.from(graphControlPanel.children).filter((x,i)=>{
-		let colorPicker = x.querySelector("#graph-color");
-		if(colorPicker) {
-			colorPicker.value="#"+rgba2hex(palette[i])
-		}
-	});
 }
 
 function setFrameSize(n) {
@@ -277,22 +281,10 @@ function setup() {
 	let canvas = document.getElementById("defaultCanvas0");
 	document.getElementById("canvas-holder").appendChild(canvas);
 	
-	textFont("Source Code Pro");
+	graphControlPanel = document.getElementById("graph-control-panel");
+	controlTemplate = document.getElementById("graph-control-template");
 	
-	palette = [
-		color(0,0,255),
-		color(255,0,0),
-		color(255,255,0),
-		color(255,0,255),
-		color(0,255,255),
-		color(0,255,0),
-		color(255,128,0),
-		color(128,255,0),
-		color(0,255,128),
-		color(0,128,255),
-		color(128,0,255),
-		color(255,0,128)
-	];
+	textFont("Source Code Pro");
 	
 	for(let i=0;i<binTypes.length;i++) {
 		addGraph(i);
@@ -363,7 +355,7 @@ function draw() {
 		"Photon Utilization (r/h(p))");
 	for(let i=0;i<rateGraphs.length;i++) {
 		noFill();
-		stroke(palette[i]);
+		stroke(getColorPicker(i).value);
 		plot((keyIsPressed&&keyCode==SHIFT)?randGraphs[i]:rateGraphs[i],
 				border+1,h+border-1,w*graphScaleX-2,h*graphScaleY-2);
 	}
