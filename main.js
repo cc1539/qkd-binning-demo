@@ -109,11 +109,51 @@ function entropy(p, base) {
 	return -sum/Math.log(base);
 }
 
+function movingAverage(arr,windowSize) {
+	let newArr = [];
+	let initValue = isNaN(arr[0])?0:arr[0];
+	let windowArr = Array(windowSize).fill(initValue);
+	let windowSum = initValue*windowSize;
+	let windowIndex = 0;
+	for(let i=0;i<arr.length;i++) {
+		windowSum -= windowArr[windowIndex];
+		windowArr[windowIndex] = isNaN(arr[i])?0:arr[i];
+		windowSum += windowArr[windowIndex];
+		if(++windowIndex>=windowSize) {
+			windowIndex = 0;
+		}
+		
+		newArr[i] = windowSum/min(i+1,windowSize);
+	}
+	return newArr;
+}
+
+function windowedAverage(arr,windowSize) {
+	if(windowSize==0) {
+		return arr;
+	}
+	let newArr = [];
+	for(let i=0;i<arr.length;i++) {
+		let samples = 0;
+		let sampleCount = 0;
+		for(let j=-windowSize;j<=windowSize;j++) {
+			let k = i+j;
+			if(k>=0 && k<arr.length) {
+				samples += isNaN(arr[k])?0:arr[k];
+				sampleCount++;
+			}
+		}
+		newArr[i] = sampleCount>0?samples/sampleCount:0;
+	}
+	return newArr;
+}
+
 
 /************** MAIN / USER INTERFACE **************/
 
 let frameSize = 8;
 let deadTime = 0;
+let graphSmoothness = 0;
 
 let graphSamples = 640;
 
@@ -345,6 +385,10 @@ function setup() {
 		reset();
 	};
 	
+	document.querySelector('select[name="graph-smoothing"]').onchange = function() {
+		graphSmoothness = parseInt(this.options[this.selectedIndex].innerHTML);
+	};
+	
 }
 
 function keyTyped() {
@@ -399,8 +443,9 @@ function draw() {
 	for(let i=0;i<rateGraphs.length;i++) {
 		noFill();
 		stroke(getColorPicker(i).value);
-		plot(yAxisMode==2?randGraphs[i]:rateGraphs[i],
-				border+1,h+border-1,w*graphScaleX-2,h*graphScaleY-2);
+		let graph = yAxisMode==2?randGraphs[i]:rateGraphs[i];
+		graph = windowedAverage(graph,graphSmoothness);
+		plot(graph,border+1,h+border-1,w*graphScaleX-2,h*graphScaleY-2);
 	}
 	
 	//document.title = "QKD Binning Demo | FPS: "+frameRate().toFixed(1);
