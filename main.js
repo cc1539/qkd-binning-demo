@@ -436,10 +436,13 @@ function draw() {
 	let w = width-border*2;
 	let h = height-border*2;
 	grid(x,y,w,h,w*.1*graphScaleX,h*.1*graphScaleY,.1,.1);
-	labels(x,y,w,h,"n = "+frameSize+", downtime = "+deadTime,"Probability (p)",
-		yAxisMode==2?"Randomness (H(X)h(p))":
-		yAxisMode==1?"Raw Key Rate (r)":
-		"Photon Utilization (r/h(p))");
+	
+	let yAxisLabel = ([
+		"Photon Utilization (r/h(p))",
+		"Raw Key Rate (r)",
+		"Randomness (H_min(X)h(p))"
+	])[yAxisMode];
+	labels(x,y,w,h,"n = "+frameSize+", downtime = "+deadTime+", smoothing = "+graphSmoothness,"Probability (p)",yAxisLabel);
 	for(let i=0;i<rateGraphs.length;i++) {
 		noFill();
 		stroke(getColorPicker(i).value);
