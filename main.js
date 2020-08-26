@@ -124,10 +124,9 @@ let binTypes = [
 	AdaptiveFraming.prototype,
 ];
 
-let bins = Array(binTypes.length).fill(0).map((x,i)=>Array(graphSamples).fill(0).map(y=>new binTypes[i].constructor()))
-
-let rateGraphs = Array(binTypes.length).fill(0).map(x=>Array(graphSamples).fill(0));
-let randGraphs = Array(binTypes.length).fill(0).map(x=>Array(graphSamples).fill(0));
+let bins = [];
+let rateGraphs = [];
+let randGraphs = [];
 
 let palette;
 
@@ -189,25 +188,114 @@ function rgba2hex(value) {
 	return  ("0"+(value.levels[0].toString(16))).slice(-2)+
 			("0"+(value.levels[1].toString(16))).slice(-2)+
 			("0"+(value.levels[2].toString(16))).slice(-2);
-			//("0"+(value.levels[3].toString(16))).slice(-2);
+}
+
+function getGraphControlIndex(obj) {
+	return Array.from(document.getElementById("graph-control-panel").children).indexOf(obj);
+}
+
+function addGraph(typeIndex,index) {
+	if(index==null) {
+		index = bins.length;
+	}
+	let newBins = Array(graphSamples).fill(0).map(y=>new binTypes[typeIndex].constructor());
+	newBins.filter(y=>{
+		y.deadTime = deadTime;
+		y.setFrameSize(frameSize);
+		y.setBinSize(1);
+		y.getAnalysis().setLetterSize(log2(frameSize));
+	});
+	bins.splice(index,0,newBins);
+	rateGraphs.splice(index,0,[]);
+	randGraphs.splice(index,0,[]);
+
+	let graphControlPanel = document.getElementById("graph-control-panel");
+	let controlTemplate = document.getElementById("graph-control-template");
+	
+	let entry = controlTemplate.content.cloneNode(true);
+	
+	if(palette[index]==null) {
+		palette[index] = color(255);
+	}
+	
+	let colorPicker = entry.querySelector("#graph-color");
+	colorPicker.value = "#"+rgba2hex(palette[index]);
+	colorPicker.onchange = function() {
+		index = getGraphControlIndex(entry);
+		palette[index] = colorPicker.value;
+	};
+	
+	let schemeSelect = entry.querySelector("select");
+	schemeSelect.selectedIndex = typeIndex;
+	schemeSelect.onchange = function() {
+		index = getGraphControlIndex(entry);
+		deleteGraph(index);
+		addGraph(schemeSelect.selectedIndex,index);
+	};
+	
+	let removeButton = entry.querySelector(".remove");
+	removeButton.onclick = function() {
+		index = getGraphControlIndex(entry);
+		deleteGraph(index);
+	};
+	
+	graphControlPanel.insertBefore(entry,graphControlPanel.children[index]);
+	entry = graphControlPanel.children[index];
+}
+
+function deleteGraph(index) {
+	if(index<0) {
+		return; // glitch?
+	}
+	bins.splice(index,1);
+	rateGraphs.splice(index,1);
+	randGraphs.splice(index,1);
+	let graphControlPanel = document.getElementById("graph-control-panel");
+	graphControlPanel.removeChild(graphControlPanel.children[index]);
+	Array.from(graphControlPanel.children).filter((x,i)=>{
+		let colorPicker = x.querySelector("#graph-color");
+		if(colorPicker) {
+			colorPicker.value="#"+rgba2hex(palette[i])
+		}
+	});
+}
+
+function setFrameSize(n) {
+	frameSize = n;
+	for(let i=0;i<bins.length;i++) {
+	for(let j=0;j<bins[i].length;j++) {
+		bins[i][j].clear();
+		bins[i][j].setFrameSize(n);
+	}
+	}
 }
 
 function setup() {
+	
 	createCanvas(840,640);
+	
 	let canvas = document.getElementById("defaultCanvas0");
 	document.getElementById("canvas-holder").appendChild(canvas);
 	
 	textFont("Source Code Pro");
 	
+	palette = [
+		color(0,0,255),
+		color(255,0,0),
+		color(255,255,0),
+		color(255,0,255),
+		color(0,255,255),
+		color(0,255,0),
+		color(255,128,0),
+		color(128,255,0),
+		color(0,255,128),
+		color(0,128,255),
+		color(128,0,255),
+		color(255,0,128)
+	];
+	
 	for(let i=0;i<binTypes.length;i++) {
-	for(let j=0;j<graphSamples;j++) {
-		bins[i][j].deadTime = deadTime;
-		bins[i][j].setFrameSize(frameSize);
-		//bins[i][j].setBinSize(1<<i);
-		bins[i][j].setBinSize(1);
-		bins[i][j].getAnalysis().setLetterSize(log2(frameSize));
-		//bins[i][j].getAnalysis().setLetterSize(6-i);
-	}
+		addGraph(i);
 	}
 	
 	updateGraphs();
@@ -216,40 +304,11 @@ function setup() {
 		labelText[i] = bins[i][0].getName();
 	}
 	
-	palette = [
-		color(0,0,255),
-		color(255,0,0),
-		color(255,255,0),
-		color(255,0,255),
-	];
-	
-	let graphControlPanel = document.getElementById("graph-control-panel");
-	let controlTemplate = document.getElementById("graph-control-template");
-	for(let i=0;i<binTypes.length;i++) {
-		
-		let entry = controlTemplate.content.cloneNode(true);
-		let index = i;
-		
-		let colorPicker = entry.querySelector("#graph-color");
-		colorPicker.value = "#"+rgba2hex(palette[i]);
-		colorPicker.onchange = function() {
-			palette[index] = colorPicker.value;
-		};
-		
-		let schemeSelect = entry.querySelector("select");
-		schemeSelect.selectedIndex = i;
-		schemeSelect.onchange = function() {
-			bins[index] = Array(graphSamples).fill(0).map(y=>new binTypes[schemeSelect.selectedIndex].constructor());
-			bins[index].filter(y=>{
-				y.deadTime = deadTime;
-				y.setFrameSize(frameSize);
-				y.setBinSize(1);
-				y.getAnalysis().setLetterSize(log2(frameSize));
-			});
-		};
-		
-		graphControlPanel.appendChild(entry);
-	}
+	document.querySelector("#graph-control-panel > .add-control").onclick = function() {
+		if(bins.length<4) {
+			addGraph(0);
+		}
+	};
 	
 }
 

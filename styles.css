@@ -11,6 +11,11 @@
 	--control-panel-height: 200px;
 }
 
+p {
+	color: white;
+	font-size: 10px;
+}
+
 canvas {
 	position: relative;
 	left: 50%;
@@ -44,6 +49,12 @@ canvas {
 	
 	background: #333333;
 	box-shadow: 0 0 10px black;
+	
+	--graph-control-panel-width: 300px;
+	/*
+	display: flex;
+	flex-direction: row;
+	*/
 }
 
 #graph-control-panel {
@@ -51,7 +62,7 @@ canvas {
 	position: relative;
 	float: left;
 	
-	width: 50%;
+	width: var(--graph-control-panel-width);
 	height: 100%;
 	
 	border-right: 1px solid #444444;
@@ -65,32 +76,91 @@ canvas {
 	position: relative;
 	float: right;
 	
-	width: 50%;
+	width: calc(100% - var(--graph-control-panel-width));
 	height: 100%;
 	
 	border-left: 1px solid #444444;
 	box-sizing: border-box;
+	
+	padding: 10px;
 }
 
 .graph-control {
+	
 	margin-top: 5px;
 	margin-left: 5px;
+	
 	color: white;
+	
 	height: 25px;
 }
 
 .graph-control > input {
 	background-color: transparent;
+	
 	width: 25px;
 	height: 100%;
+	
 	margin-right: 5px;
 }
 
 .graph-control > select {
+	
 	position: relative;
-	top: -5px;
+	
+	top: -10px;
 	left: -5px;
+	
+	width: calc(100% - 57px);
 	height: calc(100% - 7px);
+	
 	border-radius: 3px;
+	
 	font-style: bold;
+	
+	background-color: #222222;
+	color: white;
+}
+
+.graph-control > .remove {
+	
+	position: relative;
+	
+	width: 15px;
+	height: 15px;
+	
+	top: -10px;
+	left: -5px;
+	
+	border-radius: 100%;
+	
+	text-align: middle;
+	font-weight: bold;
+	font-size: 6px;
+	
+	background-color: #222222;
+	color: white;
+}
+
+#graph-control-panel > .add-control {
+	position: relative;
+	
+	width: calc(100% - 10px);
+	height: 25px;
+	
+	border-radius: 2px;
+	text-align: center;
+	vertical-align: middle;
+	
+	background-color: #444444;
+	
+	margin-top: 10px;
+	margin-left: 5px;
+}
+
+#graph-control-panel > .add-control > p {
+	position: relative;
+	top: 50%;
+	transform: translateY(calc(-50% - 2px));
+	font-size: 20px;
 }
