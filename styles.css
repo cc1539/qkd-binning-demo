@@ -96,6 +96,10 @@ canvas {
 	padding: 10px;
 }
 
+#general-control-panel > select {
+	margin-bottom: 5px;
+}
+
 #description-control-panel {
 	
 	border: 1px solid #444444;
