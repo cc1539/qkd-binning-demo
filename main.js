@@ -188,22 +188,34 @@ function notify(text) {
 }
 
 function rgba2hex(value) {
-	if(value.levels==null) {
-		return  ("0"+((value>>>24)&0xFF).toString(16)).slice(-2)+
-				("0"+((value>>>16)&0xFF).toString(16)).slice(-2)+
-				("0"+((value>>> 8)&0xFF).toString(16)).slice(-2);
-	}
 	return  ("0"+(value.levels[0].toString(16))).slice(-2)+
 			("0"+(value.levels[1].toString(16))).slice(-2)+
 			("0"+(value.levels[2].toString(16))).slice(-2);
 }
 
 function getGraphControlIndex(obj) {
-	return Array.from(document.getElementById("graph-control-panel").children).indexOf(obj);
+	return Array.from(graphControlPanel.children).indexOf(obj);
 }
 
 function getColorPicker(index) {
 	return graphControlPanel.children[index].querySelector("#graph-color");
+}
+
+function getAvailablePaletteColor() {
+	for(let i=0;i<defaultPalette.length;i++) {
+		let taken = false;
+		let color = "#"+rgba2hex(defaultPalette[i]);
+		for(let j=0;j<graphControlPanel.children.length-1;j++) {
+			if(getColorPicker(i).value==color) {
+				taken = true;
+				break;
+			}
+		}
+		if(!taken) {
+			return color;
+		}
+	}
+	return "#"+rgba2hex(color(255));
 }
 
 function addGraph(typeIndex,index) {
@@ -217,7 +229,7 @@ function addGraph(typeIndex,index) {
 		y.deadTime = deadTime;
 		y.setFrameSize(frameSize);
 		y.setBinSize(1);
-		y.getAnalysis().setLetterSize(log2(frameSize));
+		//y.getAnalysis().setLetterSize(log2(frameSize));
 	});
 	bins.splice(index,0,newBins);
 	rateGraphs.splice(index,0,[]);
@@ -225,37 +237,34 @@ function addGraph(typeIndex,index) {
 	
 	let entry = controlTemplate.content.cloneNode(true);
 	
-	{ // scheme drop-down menu
-		let schemeSelect = entry.querySelector("select");
-		schemeSelect.selectedIndex = typeIndex;
-		schemeSelect.onchange = function() {
-			index = getGraphControlIndex(entry);
-			let color = getColorPicker(index).value;
-			deleteGraph(index);
-			addGraph(schemeSelect.selectedIndex,index);
-			getColorPicker(index).value = color;
-		};
-	}
+	 // scheme drop-down menu
+	let schemeSelect = entry.querySelector("select");
+	schemeSelect.selectedIndex = typeIndex;
+	schemeSelect.onchange = function() {
+		index = getGraphControlIndex(entry);
+		let color = getColorPicker(index).value;
+		deleteGraph(index);
+		addGraph(schemeSelect.selectedIndex,index);
+		getColorPicker(index).value = color;
+	};
 	
-	{ // x-out button
-		let removeButton = entry.querySelector(".remove");
-		removeButton.onclick = function() {
-			index = getGraphControlIndex(entry);
-			deleteGraph(index);
-		};
-	}
+	 // x-out button
+	let removeButton = entry.querySelector(".remove");
+	removeButton.onclick = function() {
+		index = getGraphControlIndex(entry);
+		console.log(index);
+		deleteGraph(index);
+	};
 	
-	{
-		let controlRow = graphControlPanel.children[index];
-		graphControlPanel.insertBefore(entry,controlRow);
-		entry = controlRow;
-	}
+	graphControlPanel.insertBefore(entry,graphControlPanel.children[index]);
+	entry = graphControlPanel.children[index];
 	
-	getColorPicker(index).value = "#FFFFFF";
+	getColorPicker(index).value = getAvailablePaletteColor();
 }
 
 function deleteGraph(index) {
 	if(index<0) {
+		console.log("hey");
 		return; // glitch?
 	}
 	bins.splice(index,1);
@@ -285,6 +294,21 @@ function setup() {
 	controlTemplate = document.getElementById("graph-control-template");
 	
 	textFont("Source Code Pro");
+	
+	defaultPalette = [
+		color(0,0,255),
+		color(255,0,0),
+		color(255,255,0),
+		color(255,0,255),
+		color(0,255,0),
+		color(0,255,255),
+		color(255,128,0),
+		color(0,255,128),
+		color(128,255,0),
+		color(128,0,255),
+		color(0,128,255),
+		color(255,0,128)
+	];
 	
 	for(let i=0;i<binTypes.length;i++) {
 		addGraph(i);
