@@ -16,6 +16,23 @@ p {
 	font-size: 10px;
 }
 
+select {
+	border-radius: 3px;
+	
+	font-style: bold;
+	
+	background-color: #222222;
+	color: white;
+}
+
+body {
+	overflow: hidden;
+}
+
+label {
+	color: white;
+}
+
 canvas {
 	position: relative;
 	left: 50%;
@@ -51,21 +68,18 @@ canvas {
 	box-shadow: 0 0 10px black;
 	
 	--graph-control-panel-width: 300px;
-	/*
+	
 	display: flex;
 	flex-direction: row;
-	*/
+	
 }
 
 #graph-control-panel {
 	
-	position: relative;
-	float: left;
+	flex-shrink: 0;
+	width: 300px;
 	
-	width: var(--graph-control-panel-width);
-	height: 100%;
-	
-	border-right: 1px solid #444444;
+	border: 1px solid #444444;
 	box-sizing: border-box;
 	
 	padding: 5px;
@@ -73,13 +87,18 @@ canvas {
 
 #general-control-panel {
 	
-	position: relative;
-	float: right;
+	flex-shrink: 0;
+	width: 300px;
 	
-	width: calc(100% - var(--graph-control-panel-width));
-	height: 100%;
+	border: 1px solid #444444;
+	box-sizing: border-box;
 	
-	border-left: 1px solid #444444;
+	padding: 10px;
+}
+
+#description-control-panel {
+	
+	border: 1px solid #444444;
 	box-sizing: border-box;
 	
 	padding: 10px;
@@ -113,13 +132,6 @@ canvas {
 	
 	width: calc(100% - 57px);
 	height: calc(100% - 7px);
-	
-	border-radius: 3px;
-	
-	font-style: bold;
-	
-	background-color: #222222;
-	color: white;
 }
 
 .graph-control > .remove {

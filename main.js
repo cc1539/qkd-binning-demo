@@ -206,7 +206,7 @@ function getAvailablePaletteColor() {
 		let taken = false;
 		let color = "#"+rgba2hex(defaultPalette[i]);
 		for(let j=0;j<graphControlPanel.children.length-1;j++) {
-			if(getColorPicker(i).value==color) {
+			if(getColorPicker(j).value==color) {
 				taken = true;
 				break;
 			}
@@ -229,7 +229,6 @@ function addGraph(typeIndex,index) {
 		y.deadTime = deadTime;
 		y.setFrameSize(frameSize);
 		y.setBinSize(1);
-		//y.getAnalysis().setLetterSize(log2(frameSize));
 	});
 	bins.splice(index,0,newBins);
 	rateGraphs.splice(index,0,[]);
