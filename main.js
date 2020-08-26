@@ -112,10 +112,10 @@ function entropy(p, base) {
 
 /************** MAIN / USER INTERFACE **************/
 
-let frameSize = 16;
+let frameSize = 8;
 let deadTime = 0;
 
-let graphSamples = 1000;
+let graphSamples = 640;
 
 let binTypes = [
 	SimpleBinning.prototype,
@@ -332,6 +332,19 @@ function setup() {
 		yAxisMode = this.selectedIndex;
 	};
 	
+	document.querySelector('select[name="frame-size"]').onchange = function() {
+		let newFrameSize = 1<<(this.selectedIndex+3);
+		bins.filter(x=>x.filter(y=>y.setFrameSize(newFrameSize)));
+		reset();
+		frameSize = newFrameSize;
+	};
+	
+	document.querySelector('select[name="down-time"]').onchange = function() {
+		deadTime = parseInt(this.options[this.selectedIndex].innerHTML);
+		bins.filter(x=>x.filter(y=>y.deadTime=deadTime));
+		reset();
+	};
+	
 }
 
 function keyTyped() {
@@ -379,7 +392,7 @@ function draw() {
 	let w = width-border*2;
 	let h = height-border*2;
 	grid(x,y,w,h,w*.1*graphScaleX,h*.1*graphScaleY,.1,.1);
-	labels(x,y,w,h,"n="+frameSize,"Probability (p)",
+	labels(x,y,w,h,"n = "+frameSize+", downtime = "+deadTime,"Probability (p)",
 		yAxisMode==2?"Randomness (H(X)h(p))":
 		yAxisMode==1?"Raw Key Rate (r)":
 		"Photon Utilization (r/h(p))");
