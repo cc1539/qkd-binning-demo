@@ -153,9 +153,10 @@ function windowedAverage(arr,windowSize) {
 
 let frameSize = 8;
 let deadTime = 0;
+let probability = 0.5;
 let graphSmoothness = 0;
 
-let graphSamples = 640;
+let graphSamples = 512;
 
 let binTypes = [
 	SimpleBinning.prototype,
@@ -197,7 +198,7 @@ async function updateGraphs() {
 	for(let i=0;i<bins.length;i++) {
 		for(let j=0;j<bins[0].length;j++) {
 			
-			let p = j/(bins[0].length-1);
+			let p = xAxisMode==0?(j/(bins[0].length-1)):probability;
 			
 			for(let k=0;k<32;k++) {
 				bins[i][j].write(Math.random()<p);
@@ -325,6 +326,19 @@ function setFrameSize(n) {
 	}
 }
 
+function handleNumInput(input,callback) {
+	if(!input.value || isNaN(input.value) || input.value<input.min || input.value>input.max) {
+		input.value = input.pvalue;
+		input.style["background-color"] = "#880000";
+		setTimeout(function(){
+			input.style["background-color"] = "";
+		},500);
+	} else {
+		callback(parseFloat(input.value));
+		input.pvalue = input.value;
+	}
+}
+
 function setup() {
 	
 	createCanvas(840,640);
@@ -363,7 +377,7 @@ function setup() {
 	}
 	
 	document.querySelector("#graph-control-panel > .add-control").onclick = function() {
-		if(bins.length<4) {
+		if(bins.length<8) {
 			addGraph(0);
 		}
 	};
@@ -372,17 +386,41 @@ function setup() {
 		yAxisMode = this.selectedIndex;
 	};
 	
+	document.querySelector('select[name="x-axis"]').onchange = function() {
+		xAxisMode = this.selectedIndex;
+		if(this.selectedIndex==0) {
+			document.getElementById("downtime-control").style.display = "";
+			document.getElementById("probability-control").style.display = "none";
+			bins.forEach(x=>x.forEach(y=>y.deadTime=deadTime));
+		} else {
+			document.getElementById("downtime-control").style.display = "none";
+			document.getElementById("probability-control").style.display = "";
+			bins.forEach(x=>x.forEach((y,i)=>y.deadTime=i));
+		}
+		reset();
+	};
+	
 	document.querySelector('select[name="frame-size"]').onchange = function() {
 		let newFrameSize = 1<<(this.selectedIndex+3);
-		bins.filter(x=>x.filter(y=>y.setFrameSize(newFrameSize)));
+		bins.forEach(x=>x.forEach(y=>y.setFrameSize(newFrameSize)));
 		reset();
 		frameSize = newFrameSize;
 	};
 	
-	document.querySelector('select[name="down-time"]').onchange = function() {
-		deadTime = parseInt(this.options[this.selectedIndex].innerHTML);
-		bins.filter(x=>x.filter(y=>y.deadTime=deadTime));
-		reset();
+	document.querySelector('input[name="down-time"]').onchange = function() {
+		handleNumInput(this,function(num){
+			deadTime = num;
+			bins.forEach(x=>x.forEach(y=>y.deadTime=deadTime));
+			reset();
+		});
+	};
+	
+	document.querySelector('input[name="probability"]').onchange = function() {
+		handleNumInput(this,function(num){
+			probability = num;
+			bins.forEach(x=>x.forEach((y,i)=>y.deadTime=i));
+			reset();
+		});
 	};
 	
 	document.querySelector('select[name="graph-smoothing"]').onchange = function() {
@@ -431,18 +469,32 @@ function draw() {
 	
 	let border = 100;
 	
+	let xRange = xAxisMode==0?1:graphSamples;
+	
 	let x = border;
 	let y = border;
 	let w = width-border*2;
 	let h = height-border*2;
-	grid(x,y,w,h,w*.1*graphScaleX,h*.1*graphScaleY,.1,.1);
+	grid(x,y,w,h,w*.1*graphScaleX,h*.1*graphScaleY,.1*xRange,.1);
 	
 	let yAxisLabel = ([
 		"Photon Utilization (r/h(p))",
 		"Raw Key Rate (r)",
 		"Randomness (H_min(X)h(p))"
 	])[yAxisMode];
-	labels(x,y,w,h,"n = "+frameSize+", downtime = "+deadTime+", smoothing = "+graphSmoothness,"Probability (p)",yAxisLabel);
+	
+	let xAxisLabel = ([
+		"Probability (p)",
+		"Down time (e)"
+	])[xAxisMode];
+	
+	labels(x,y,w,h,
+		"n = "+frameSize+
+		(xAxisMode==0?
+			(", e = "+deadTime):
+			(", p = "+probability))+
+		", smoothing = "+graphSmoothness,
+			xAxisLabel,yAxisLabel);
 	for(let i=0;i<rateGraphs.length;i++) {
 		noFill();
 		stroke(getColorPicker(i).value);

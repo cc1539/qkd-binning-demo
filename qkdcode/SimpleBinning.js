@@ -95,6 +95,7 @@ class SimpleBinning extends BitStream {
 		this.output.clear();
 		this.bitsIn = 0;
 		this.bitsOut = 0;
+		this.deadTimer = 0;
 	}
 	
 	getName() {

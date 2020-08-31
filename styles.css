@@ -25,6 +25,18 @@ select {
 	color: white;
 }
 
+input[type=number] {
+	
+	width: 50px;
+	
+	border-radius: 3px;
+	
+	font-style: bold;
+	
+	background-color: #222222;
+	color: white;
+}
+
 body {
 	overflow: hidden;
 }
@@ -77,7 +89,7 @@ canvas {
 #graph-control-panel {
 	
 	flex-shrink: 0;
-	width: 300px;
+	max-width: 300px;
 	
 	border: 1px solid #444444;
 	box-sizing: border-box;
@@ -88,7 +100,7 @@ canvas {
 #general-control-panel {
 	
 	flex-shrink: 0;
-	width: 300px;
+	max-width: 300px;
 	
 	border: 1px solid #444444;
 	box-sizing: border-box;
@@ -96,11 +108,13 @@ canvas {
 	padding: 10px;
 }
 
-#general-control-panel > select {
+#general-control-panel select, #general-control-panel input {
 	margin-bottom: 5px;
 }
 
 #description-control-panel {
+	
+	min-width: 200px;
 	
 	border: 1px solid #444444;
 	box-sizing: border-box;
@@ -179,4 +193,22 @@ canvas {
 	top: 50%;
 	transform: translateY(calc(-50% - 2px));
 	font-size: 20px;
+}
+
+.bottom-panel {
+	overflow-y: auto;
+	scrollbar-width: thin;
+	scrollbar-color: white black;
+}
+
+.bottom-panel::-webkit-scrollbar {
+	width: 10px;
+}
+
+.bottom-panel::-webkit-scrollbar-track {
+	background: #444444;
+}
+
+.bottom-panel::-webkit-scrollbar-thumb {
+	background-color: #888888;
 }

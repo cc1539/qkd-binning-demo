@@ -32,14 +32,6 @@
 			
 			<div id="general-control-panel" class="bottom-panel">
 				
-				<label name="x-axis">X-Axis: </label>
-				<select name="x-axis">
-					<option value="n">Probability (p)</option>
-					<option value="e">Detector Downtime</option>
-				</select>
-				
-				<br>
-				
 				<label name="y-axis">Y-Axis: </label>
 				<select name="y-axis">
 					<option value="pu">Photon Utilization (r/h(p))</option>
@@ -48,7 +40,25 @@
 				</select>
 				
 				<br>
+				<label name="x-axis">X-Axis: </label>
+				<select name="x-axis">
+					<option value="n">Probability (p)</option>
+					<option value="e">Detector Downtime (e)</option>
+				</select>
 				
+				<span id="downtime-control">
+					<br>
+					<label name="down-time">Detector Downtime (e): </label>
+					<input type="number" name="down-time" value="0" min="0" max="512" onfocus="this.pvalue=this.value;">
+				</span>
+				
+				<span style="display:none;" id="probability-control">
+					<br>
+					<label name="probability">Probability (p): </label>
+					<input type="number" name="probability" value="0.5" min="0" max="1" step="0.1" onfocus="this.pvalue=this.value;">
+				</span>
+				
+				<br>
 				<label name="frame-size">Frame size: </label>
 				<select name="frame-size">
 					<option>n=8</option>
@@ -60,24 +70,6 @@
 				</select>
 				
 				<br>
-				
-				<label name="down-time">Detector Downtime: </label>
-				<select name="down-time">
-					<option>0</option>
-					<option>1</option>
-					<option>2</option>
-					<option>3</option>
-					<option>4</option>
-					<option>8</option>
-					<option>16</option>
-					<option>32</option>
-					<option>64</option>
-					<option>128</option>
-					<option>256</option>
-				</select>
-				
-				<br>
-				
 				<label name="graph-smoothing">Smoothing Parameter: </label>
 				<select name="graph-smoothing">
 					<option>0</option>
@@ -94,7 +86,11 @@
 			</div>
 			
 			<div id="description-control-panel" class="bottom-panel">
-				<p>There are four types of binning schemes available here, as described in *this* paper, and starting from page *. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+				<p>There are four types of binning schemes available here, as described in *this* paper, and starting from page *. <br><br>
+				
+				<b>p</b> stands for the <b>p</b>robability that any one time unit is occupied by a photon. <br><b>e</b> stands for dead/down/<b>e</b>rasure time, the amount of time units during which a detector stops being able to detect additional photons after a detection. <br><b>n</b> is the frame size, which is always a power of 2. <br><b>k</b> is the bin size, which is always a power of 2 and less than <b>n</b>.<br><br>
+				
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
 			</div>
 			
 			<template id="graph-control-template">
