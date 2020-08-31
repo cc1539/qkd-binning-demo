@@ -36,7 +36,7 @@
 				<select name="y-axis">
 					<option value="pu">Photon Utilization (r/h(p))</option>
 					<option value="rkr">Raw Key Rate (r)</option>
-					<option value="r">Randomness (H_min(X)h(p))</option>
+					<option value="r">Randomness (H_min(X)h(x))</option>
 				</select>
 				
 				<br>
@@ -86,11 +86,18 @@
 			</div>
 			
 			<div id="description-control-panel" class="bottom-panel">
-				<p>There are four types of binning schemes available here, as described in *this* paper, and starting from page *. <br><br>
-				
-				<b>p</b> stands for the <b>p</b>robability that any one time unit is occupied by a photon. <br><b>e</b> stands for dead/down/<b>e</b>rasure time, the amount of time units during which a detector stops being able to detect additional photons after a detection. <br><b>n</b> is the frame size, which is always a power of 2. <br><b>k</b> is the bin size, which is always a power of 2 and less than <b>n</b>.<br><br>
-				
-				Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+				<p>
+					You can customize the graph by using the controls to the left.<br><br>
+					
+					<b>p</b> stands for the <b>p</b>robability that any one time unit is occupied by a photon. <br><b>e</b> stands for dead/down/<b>e</b>rasure time, the amount of time units during which a detector stops being able to detect additional photons after a detection. <br><b>n</b> is the frame size, which is always a power of 2. <br><b>k</b> is the bin size, which is always a power of 2 and less than <b>n</b>.<br><br>
+					
+					The photon utilization, r/h(p) is the raw key rate divided by the binary entropy of p.
+					The randomness, H_min(X)h(x) is the binary entropy of the output multiplied by the min-entropy of the output, with symbol size log(n).<br><br>
+					
+					There are four types of binning schemes available here, as described in *this* paper, and starting from page *.<br><br>
+					
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+				</p>
 			</div>
 			
 			<template id="graph-control-template">

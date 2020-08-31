@@ -488,7 +488,7 @@ function draw() {
 	let yAxisLabel = ([
 		"Photon Utilization (r/h(p))",
 		"Raw Key Rate (r)",
-		"Randomness (H_min(X)h(p))"
+		"Randomness (H_min(X)h(x))"
 	])[yAxisMode];
 	
 	let xAxisLabel = ([

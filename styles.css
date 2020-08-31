@@ -3,8 +3,8 @@
 	margin: 0;
 	padding: 0;
 	font-family: source code pro;
-	font-size: 10px;
 	border: 0;
+	font-size: 10px;
 }
 
 :root {
@@ -89,7 +89,7 @@ canvas {
 #graph-control-panel {
 	
 	flex-shrink: 0;
-	max-width: 300px;
+	width: 280px;
 	
 	border: 1px solid #444444;
 	box-sizing: border-box;
@@ -100,7 +100,7 @@ canvas {
 #general-control-panel {
 	
 	flex-shrink: 0;
-	max-width: 300px;
+	width: 280px;
 	
 	border: 1px solid #444444;
 	box-sizing: border-box;
@@ -120,6 +120,10 @@ canvas {
 	box-sizing: border-box;
 	
 	padding: 10px;
+}
+
+#description-control-panel * {
+	font-size: 12px;
 }
 
 .graph-control {
