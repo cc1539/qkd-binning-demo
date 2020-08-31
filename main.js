@@ -347,6 +347,13 @@ function handleNumInput(input,callback) {
 	}
 }
 
+function applyDeadTime() {
+	bins.forEach(x=>x.forEach([
+		(y=>y.deadTime=deadTime),
+		((y,i)=>y.deadTime=i)
+	][xAxisMode]));
+}
+
 function setup() {
 	
 	createCanvas(840,640);
@@ -399,11 +406,7 @@ function setup() {
 		["downtime-control","probability-control"]
 			.map(e=>document.getElementById(e))
 			.forEach((x,i)=>x.style.display=(i==xAxisMode?"":"none"));
-		if(xAxisMode==0) {
-			bins.forEach(x=>x.forEach(y=>y.deadTime=deadTime));
-		} else {
-			bins.forEach(x=>x.forEach((y,i)=>y.deadTime=i));
-		}
+		applyDeadTime();
 		reset();
 	};
 	
@@ -417,7 +420,7 @@ function setup() {
 	document.querySelector('input[name="down-time"]').onchange = function() {
 		handleNumInput(this,function(num){
 			deadTime = num;
-			bins.forEach(x=>x.forEach(y=>y.deadTime=deadTime));
+			applyDeadTime();
 			reset();
 		});
 	};
@@ -425,7 +428,7 @@ function setup() {
 	document.querySelector('input[name="probability"]').onchange = function() {
 		handleNumInput(this,function(num){
 			probability = num;
-			bins.forEach(x=>x.forEach((y,i)=>y.deadTime=i));
+			applyDeadTime();
 			reset();
 		});
 	};
@@ -497,9 +500,9 @@ function draw() {
 	
 	labels(x,y,w,h,
 		"n = "+frameSize+
-		(xAxisMode==0?
-			(", e = "+deadTime):
-			(", p = "+probability))+
+			[", e = "+deadTime,
+			 ", p = "+probability]
+		[xAxisMode]+
 		", smoothing = "+graphSmoothness,
 			xAxisLabel,yAxisLabel);
 	for(let i=0;i<rateGraphs.length;i++) {
