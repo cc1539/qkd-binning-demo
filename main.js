@@ -269,11 +269,19 @@ function addGraph(typeIndex,index) {
 	}
 	
 	let newBins = Array(graphSamples).fill(0).map(y=>new binTypes[typeIndex].constructor());
-	newBins.filter(y=>{
-		y.deadTime = deadTime;
+	newBins.forEach(y=>{
 		y.setFrameSize(frameSize);
 		y.setBinSize(1);
 	});
+	if(xAxisMode==0) {
+		newBins.forEach(y=>{
+			y.deadTime = deadTime;
+		});
+	} else {
+		newBins.forEach((y,i)=>{
+			y.deadTime = i;
+		});
+	}
 	bins.splice(index,0,newBins);
 	rateGraphs.splice(index,0,[]);
 	randGraphs.splice(index,0,[]);
