@@ -396,13 +396,12 @@ function setup() {
 	
 	document.querySelector('select[name="x-axis"]').onchange = function() {
 		xAxisMode = this.selectedIndex;
-		if(this.selectedIndex==0) {
-			document.getElementById("downtime-control").style.display = "";
-			document.getElementById("probability-control").style.display = "none";
+		["downtime-control","probability-control"]
+			.map(e=>document.getElementById(e))
+			.forEach((x,i)=>x.style.display=(i==xAxisMode?"":"none"));
+		if(xAxisMode==0) {
 			bins.forEach(x=>x.forEach(y=>y.deadTime=deadTime));
 		} else {
-			document.getElementById("downtime-control").style.display = "none";
-			document.getElementById("probability-control").style.display = "";
 			bins.forEach(x=>x.forEach((y,i)=>y.deadTime=i));
 		}
 		reset();
