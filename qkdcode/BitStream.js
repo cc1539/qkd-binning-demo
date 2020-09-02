@@ -43,9 +43,7 @@ class BitStream {
 	}
 	
 	readInt(len) {
-		if(len==null) {
-			len = 32;
-		}
+		len = len || 32;
 		let num = 0;
 		for(let i=0;i<len;i++) {
 			if(this.read()) {

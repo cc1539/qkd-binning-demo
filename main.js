@@ -148,6 +148,36 @@ function windowedAverage(arr,windowSize) {
 	return newArr;
 }
 
+/************** MISC **************/
+
+function getTestSequence(binType,options,len) {
+	
+	let bin = new binType.constructor();
+	bin.setFrameSize(options.n||8);
+	bin.setBinSize(options.k||1);
+	bin.deadTime = options.e||0;
+	let p = options.p||.5;
+	
+	let samples = new Int8Array(len);
+	let index = 0;
+	
+	while(index<len) {
+		bin.write(Math.random()<p);
+		while(bin.getOutput().length()>=8 && index<len) {
+			samples[index++] = bin.getOutput().readInt(8);
+		}
+	}
+	
+	return samples;
+}
+
+function download(data,name) {
+	let link = document.createElement("a");
+	link.href = window.URL.createObjectURL(new Blob([data],{type:"octet/stream"}));
+	link.download = name;
+	link.click();
+	window.URL.revokeObjectURL(link.href);
+}
 
 /************** MAIN / USER INTERFACE **************/
 
@@ -435,6 +465,17 @@ function setup() {
 	
 	document.querySelector('select[name="graph-smoothing"]').onchange = function() {
 		graphSmoothness = parseInt(this.options[this.selectedIndex].innerHTML);
+	};
+	
+	// set up test sample downloader
+	
+	document.getElementById("sample-download-button").onclick = function() {
+		download(getTestSequence(binTypes[document.querySelector('select[name="test-graph-type"]').selectedIndex],{
+			n: 1<<(document.querySelector('select[name="test-frame-size"]').selectedIndex+3),
+			k: 1<<(document.querySelector('select[name="test-bin-size"]')),
+			e: document.querySelector('input[name="test-down-time"]').value,
+			p: document.querySelector('input[name="test-probability"]').value,
+		},document.querySelector('input[name="test-length"]').value),"sample.bin");
 	};
 	
 }

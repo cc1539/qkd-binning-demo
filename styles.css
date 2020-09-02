@@ -190,6 +190,27 @@ canvas {
 	
 	margin-top: 10px;
 	margin-left: 5px;
+	
+	color: white;
+}
+
+button {
+	position: relative;
+	
+	left: 50%;
+	transform: translateX(-50%);
+	width: calc(100% - 30px);
+	height: 25px;
+	
+	border-radius: 2px;
+	text-align: center;
+	vertical-align: middle;
+	
+	background-color: #444444;
+	
+	margin-top: 10px;
+	
+	color: white;
 }
 
 #graph-control-panel > .add-control > p {

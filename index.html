@@ -30,58 +30,121 @@
 				<div class="add-control"><p>+</p></div>
 			</div>
 			
-			<div id="general-control-panel" class="bottom-panel">
+			<div id="general-control-panel" class="bottom-panel" style="display:flex;flex-direction:column;">
 				
-				<label name="y-axis">Y-Axis: </label>
-				<select name="y-axis">
-					<option value="pu">Photon Utilization (r/h(p))</option>
-					<option value="rkr">Raw Key Rate (r)</option>
-					<option value="r">Randomness (H_min(X)h(x))</option>
-				</select>
-				
-				<br>
-				<label name="x-axis">X-Axis: </label>
-				<select name="x-axis">
-					<option value="n">Probability (p)</option>
-					<option value="e">Detector Downtime (e)</option>
-				</select>
-				
-				<span id="downtime-control">
+				<div>
+					
+					<p><b>Simulation Graph Controls</b></p>
+					
 					<br>
-					<label name="down-time">Detector Downtime (e): </label>
-					<input type="number" name="down-time" value="0" min="0" max="512" onfocus="this.pvalue=this.value;">
-				</span>
-				
-				<span style="display:none;" id="probability-control">
+					<label name="y-axis">Y-Axis: </label>
+					<select name="y-axis">
+						<option value="pu">Photon Utilization (r/h(p))</option>
+						<option value="rkr">Raw Key Rate (r)</option>
+						<option value="r">Randomness (H_min(X)h(x))</option>
+					</select>
+					
 					<br>
-					<label name="probability">Probability (p): </label>
-					<input type="number" name="probability" value="0.5" min="0" max="1" step="0.1" onfocus="this.pvalue=this.value;">
-				</span>
+					<label name="x-axis">X-Axis: </label>
+					<select name="x-axis">
+						<option value="n">Probability (p)</option>
+						<option value="e">Detector Downtime (e)</option>
+					</select>
+					
+					<span id="downtime-control">
+						<br>
+						<label name="down-time">Detector Downtime (e): </label>
+						<input type="number" name="down-time" value="0" min="0" max="512" onfocus="this.pvalue=this.value;">
+					</span>
+					
+					<span style="display:none;" id="probability-control">
+						<br>
+						<label name="probability">Probability (p): </label>
+						<input type="number" name="probability" value="0.5" min="0" max="1" step="0.1" onfocus="this.pvalue=this.value;">
+					</span>
+					
+					<br>
+					<label name="frame-size">Frame size: </label>
+					<select name="frame-size">
+						<option>n=8</option>
+						<option>n=16</option>
+						<option>n=32</option>
+						<option>n=64</option>
+						<option>n=128</option>
+						<option>n=256</option>
+					</select>
+					
+					<br>
+					<label name="graph-smoothing">Smoothing Parameter: </label>
+					<select name="graph-smoothing">
+						<option>0</option>
+						<option>2</option>
+						<option>3</option>
+						<option>4</option>
+						<option>5</option>
+						<option>10</option>
+						<option>20</option>
+						<option>30</option>
+						<option>100</option>
+					</select>
+					
+					<br>
+					<br>
+				</div>
 				
-				<br>
-				<label name="frame-size">Frame size: </label>
-				<select name="frame-size">
-					<option>n=8</option>
-					<option>n=16</option>
-					<option>n=32</option>
-					<option>n=64</option>
-					<option>n=128</option>
-					<option>n=256</option>
-				</select>
+				<div style="border-top:1px solid #888888">
+					
+					<br>
+					<p><b>Generate Test Sample</b></p>
+					
+					<br>
+					<label name="test-graph-type">Bin type: </label>
+					<select name="test-graph-type">
+						<option value="sb">Simple Binning, k=1</option>
+						<option value="ab">Adaptive Binning</option>
+						<option value="aab">Adaptive Aggregated Binning</option>
+						<option value="af">Adaptive Framing</option>
+					</select>
 				
-				<br>
-				<label name="graph-smoothing">Smoothing Parameter: </label>
-				<select name="graph-smoothing">
-					<option>0</option>
-					<option>2</option>
-					<option>3</option>
-					<option>4</option>
-					<option>5</option>
-					<option>10</option>
-					<option>20</option>
-					<option>30</option>
-					<option>100</option>
-				</select>
+					<br>
+					<label name="test-down-time">Detector Downtime (e): </label>
+					<input type="number" name="test-down-time" value="0" min="0" max="512" onfocus="this.pvalue=this.value;">
+					
+					<br>
+					<label name="test-probability">Probability (p): </label>
+					<input type="number" name="test-probability" value="0.5" min="0" max="1" step="0.1" onfocus="this.pvalue=this.value;">
+					
+					<br>
+					<label name="test-frame-size">Frame size: </label>
+					<select name="test-frame-size">
+						<option>n=8</option>
+						<option>n=16</option>
+						<option>n=32</option>
+						<option>n=64</option>
+						<option>n=128</option>
+						<option>n=256</option>
+					</select>
+					
+					<br>
+					<label name="test-bin-size">Bin size (for simple binning): </label>
+					<select name="test-bin-size">
+						<option>k=1</option>
+						<option>k=2</option>
+						<option>k=4</option>
+						<option>k=8</option>
+						<option>k=16</option>
+						<option>k=32</option>
+						<option>k=64</option>
+						<option>k=128</option>
+						<option>k=256</option>
+					</select>
+					
+					<br>
+					<label name="test-length">Sample length (in bytes): </label>
+					<input type="number" name="test-length" value="256" min="0" onfocus="this.pvalue=this.value;">
+					
+					<button id="sample-download-button">Download Sample</button>
+				</div>
 				
 			</div>
 			

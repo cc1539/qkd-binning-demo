@@ -27,7 +27,7 @@ class SimpleBinning extends BitStream {
 	
 	setFrameSize(n) {
 		this.n = n;
-		this.getAnalysis().setLetterSize(log2(frameSize));
+		this.getAnalysis().setLetterSize(log2(n));
 	}
 	
 	setBinSize(k) {
