@@ -30,12 +30,12 @@ function grid(x, y, w, h,
 	textAlign(CENTER,TOP);
 	for(let i=0,u;(u=(x+i*tileW))<=(x+w+1);i++) {
 		line(u,y+h,u,y+h+2);
-		text(i==0?"0":(i*unitX).toFixed(2),u+1,y+h+2);
+		text(i==0?"0":(xAxisMin+i*unitX*(xAxisMax-xAxisMin)).toFixed(2),u+1,y+h+2);
 	}
 	textAlign(RIGHT,CENTER);
 	for(let i=0,v;(v=(y+h-i*tileH))>=y-1;i++) {
 		line(x,v,x-2,v);
-		text(i==0?"0":(i*unitY).toFixed(2),x-4,v-2);
+		text(i==0?"0":(yAxisMin+i*unitY*(yAxisMax-yAxisMin)).toFixed(2),x-4,v-2);
 	}
 	
 }
@@ -148,6 +148,17 @@ function windowedAverage(arr,windowSize) {
 	return newArr;
 }
 
+function convolutionAverage(arr,factor) {
+	let newArr = arr.map(x=>{return x});
+	for(;factor>.5;factor-=.5) {
+		newArr = convolutionAverage(newArr,.5);
+	}
+	if(factor>0) {
+		newArr = newArr.map((x,i)=>{x=x||0;return x+(((newArr[i+1]||x)+(newArr[i-1]||x))/2-x)*factor});
+	}
+	return newArr;
+}
+
 /************** MISC **************/
 
 function getTestSequence(binType,options,len) {
@@ -217,6 +228,11 @@ let controlTemplate;
 let xAxisMode = 0;
 let yAxisMode = 0;
 
+let xAxisMin = 0;
+let xAxisMax = 1;
+let yAxisMin = 0;
+let yAxisMax = 1;
+
 async function updateGraphs() {
 	
 	if(graphUpdateInterval!=null) {
@@ -228,7 +244,7 @@ async function updateGraphs() {
 	for(let i=0;i<bins.length;i++) {
 		for(let j=0;j<bins[0].length;j++) {
 			
-			let p = xAxisMode==0?(j/(bins[0].length-1)):probability;
+			let p = xAxisMode==0?(j/(bins[0].length-1)*(xAxisMax-xAxisMin)+xAxisMin):probability;
 			
 			for(let k=0;k<32;k++) {
 				bins[i][j].write(Math.random()<p);
@@ -365,7 +381,9 @@ function setFrameSize(n) {
 }
 
 function handleNumInput(input,callback) {
-	if(!input.value || isNaN(input.value) || input.value<input.min || input.value>input.max) {
+	if(!input.value || isNaN(input.value) ||
+			input.value<parseInt(input.min) ||
+			input.value>parseInt(input.max)) {
 		input.value = input.pvalue;
 		input.style["background-color"] = "#880000";
 		setTimeout(function(){
@@ -382,6 +400,10 @@ function applyDeadTime() {
 		(y=>y.deadTime=deadTime),
 		((y,i)=>y.deadTime=i)
 	][xAxisMode]));
+}
+
+function setDetectorCount(n) {
+	bins.forEach(x=>x.forEach(y=>y.deadTimers=Array(n).fill(0)));
 }
 
 function setup() {
@@ -414,6 +436,8 @@ function setup() {
 	for(let i=0;i<binTypes.length;i++) {
 		addGraph(i);
 	}
+	
+	setDetectorCount(1);
 	
 	updateGraphs();
 	
@@ -459,6 +483,13 @@ function setup() {
 		handleNumInput(this,function(num){
 			probability = num;
 			applyDeadTime();
+			reset();
+		});
+	};
+	
+	document.querySelector('input[name="detector-count"]').onchange = function() {
+		handleNumInput(this,function(num){
+			setDetectorCount(num);
 			reset();
 		});
 	};
@@ -550,7 +581,8 @@ function draw() {
 		noFill();
 		stroke(getColorPicker(i).value);
 		let graph = yAxisMode==2?randGraphs[i]:rateGraphs[i];
-		graph = windowedAverage(graph,graphSmoothness);
+		//graph = windowedAverage(graph,graphSmoothness);
+		graph = convolutionAverage(graph,graphSmoothness);
 		plot(graph,border+1,h+border-1,w*graphScaleX-2,h*graphScaleY-2);
 	}
 	

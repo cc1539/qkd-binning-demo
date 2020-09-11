@@ -8,7 +8,8 @@ class SimpleBinning extends BitStream {
 		this.k = 0; // bin size
 		
 		this.deadTime = 0;
-		this.deadTimer = 0;
+		this.deadTimer = 0; // deprecated
+		this.deadTimers = []; // to simulate multiple detectors
 		
 		this.bitsIn = 0;
 		this.bitsOut = 0;
@@ -42,12 +43,28 @@ class SimpleBinning extends BitStream {
 		
 		this.bitsIn++;
 		
+		/* // single dead-timer case, deprecated
 		if(this.deadTimer>0) {
 			bit = false;
 			this.deadTimer--;
 		}
 		if(bit) {
 			this.deadTimer = this.deadTime;
+		}
+		*/
+		
+		// select a detector
+		let deadTimerIndex = Math.floor(Math.random()*this.deadTimers.length);
+		if(this.deadTimers[deadTimerIndex]>0) {
+			bit = false;
+		}
+		for(let i=0;i<this.deadTimers.length;i++) {
+			if(this.deadTimers[i]>0) {
+				this.deadTimers[i]--;
+			}
+		}
+		if(this.deadTimers[deadTimerIndex]==0 && bit) {
+			this.deadTimers[deadTimerIndex] = this.deadTime;
 		}
 		
 		super.write(bit);
@@ -96,6 +113,7 @@ class SimpleBinning extends BitStream {
 		this.bitsIn = 0;
 		this.bitsOut = 0;
 		this.deadTimer = 0;
+		this.deadTimers.fill(0);
 	}
 	
 	getName() {

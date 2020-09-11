@@ -194,7 +194,7 @@ canvas {
 	color: white;
 }
 
-button {
+button:not(.remove) {
 	position: relative;
 	
 	left: 50%;
