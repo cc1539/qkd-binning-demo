@@ -4,13 +4,42 @@
 
 
 function plot(data,x,y,w,h) {
+	//let inCurve = false;
 	beginShape();
 	for(let i=0;i<data.length;i++) {
+		let rawValue = (Number.isNaN(data[i])?0:data[i]);
+		let mapValue = ((rawValue-yAxisMin)/(yAxisMax-yAxisMin));
+		
 		let u = x+i/(data.length-1)*w;
-		let v = y-h*(Number.isNaN(data[i])?0:data[i]);
+		let v = y-h*min(max(mapValue,0),1);
+		
+		/*
+		if(mapValue<0 || mapValue>1) {
+			if(inCurve) {
+				endShape();
+				inCurve = false;
+			}
+		} else {
+			if(!inCurve) {
+				beginShape();
+				inCurve = true;
+				
+				if(i>0) {
+					let rawValue0 = (Number.isNaN(data[i-1])?0:data[i-1]);
+					let mapValue0 = ((rawValue-yAxisMin)/(yAxisMax-yAxisMin));
+					
+					let u0 = x+(i-1)/(data.length-1)*w;
+					let v0 = y-h*min(max(mapValue,0),1);
+					vertex(u0,v0);
+				}
+			}
+		}
+		*/
 		vertex(u,v);
 	}
-	endShape();
+	//if(inCurve) {
+		endShape();
+	//}
 }
 
 // draw a grid with tickers and numbers
@@ -27,15 +56,20 @@ function grid(x, y, w, h,
 	line(x,y,x,y+h);
 	line(x,y+h,x+w,y+h);
 	
+	let dpX = max(2,ceil(-log((xAxisMax-xAxisMin)*unitX)/log(10)));
+	let dpY = max(2,ceil(-log((yAxisMax-yAxisMin)*unitY)/log(10)));
+	
 	textAlign(CENTER,TOP);
 	for(let i=0,u;(u=(x+i*tileW))<=(x+w+1);i++) {
 		line(u,y+h,u,y+h+2);
-		text(i==0?"0":(xAxisMin+i*unitX*(xAxisMax-xAxisMin)).toFixed(2),u+1,y+h+2);
+		let coord = (xAxisMin+i*unitX*(xAxisMax-xAxisMin));
+		text(coord==0?"0":coord.toFixed(dpX),u+1,y+h+2);
 	}
 	textAlign(RIGHT,CENTER);
 	for(let i=0,v;(v=(y+h-i*tileH))>=y-1;i++) {
 		line(x,v,x-2,v);
-		text(i==0?"0":(yAxisMin+i*unitY*(yAxisMax-yAxisMin)).toFixed(2),x-4,v-2);
+		let coord = (yAxisMin+i*unitY*(yAxisMax-yAxisMin));
+		text(coord==0?"0":coord.toFixed(dpY),x-4,v-2);
 	}
 	
 }
@@ -233,7 +267,10 @@ let xAxisMax = 1;
 let yAxisMin = 0;
 let yAxisMax = 1;
 
-async function updateGraphs() {
+let mousePressedX = -1;
+let mousePressedY = -1;
+
+async function updateGraphs(iterations) {
 	
 	if(graphUpdateInterval!=null) {
 		clearInterval(graphUpdateInterval);
@@ -246,7 +283,7 @@ async function updateGraphs() {
 			
 			let p = xAxisMode==0?(j/(bins[0].length-1)*(xAxisMax-xAxisMin)+xAxisMin):probability;
 			
-			for(let k=0;k<32;k++) {
+			for(let k=0;k<iterations;k++) {
 				bins[i][j].write(Math.random()<p);
 			}
 			
@@ -261,7 +298,9 @@ async function updateGraphs() {
 		}
 	}
 	
-	graphUpdateInterval = setInterval(updateGraphs,10);
+	graphUpdateInterval = setInterval(function(){
+		updateGraphs(32*8/bins.length);
+	},10);
 }
 
 function reset() {
@@ -349,7 +388,7 @@ function addGraph(typeIndex,index) {
 	let removeButton = entry.querySelector(".remove");
 	removeButton.onclick = function() {
 		index = getGraphControlIndex(entry);
-		console.log(index);
+		//console.log(index);
 		deleteGraph(index);
 	};
 	
@@ -439,7 +478,7 @@ function setup() {
 	
 	setDetectorCount(1);
 	
-	updateGraphs();
+	updateGraphs(32);
 	
 	for(let i=0;i<labelText.length;i++) {
 		labelText[i] = bins[i][0].getName();
@@ -523,6 +562,17 @@ function keyTyped() {
 	}
 }
 
+function getMouseSelectionFrame() {
+	return [
+		min(mouseX,mousePressedX),min(mouseY,mousePressedY),
+		max(mouseX,mousePressedX),max(mouseY,mousePressedY)];
+}
+
+function withinGraphFrame(x,y,border) {
+	border ||= 0;
+	return x>=border && y>=border && x<width-border && y<height-border;
+}
+
 function draw() {
 	
 	background(0);
@@ -553,23 +603,25 @@ function draw() {
 	
 	let xRange = xAxisMode==0?1:graphSamples;
 	
+	// define the area within and around we will draw our graph
 	let x = border;
 	let y = border;
 	let w = width-border*2;
 	let h = height-border*2;
+	
+	// draw the gridlines
 	grid(x,y,w,h,w*.1*graphScaleX,h*.1*graphScaleY,.1*xRange,.1);
 	
+	// draw the labels around the grid
 	let yAxisLabel = ([
 		"Photon Utilization (r/h(p))",
 		"Raw Key Rate (r)",
 		"Randomness (H_min(X)h(x))"
 	])[yAxisMode];
-	
 	let xAxisLabel = ([
 		"Probability (p)",
 		"Down time (e)"
 	])[xAxisMode];
-	
 	labels(x,y,w,h,
 		"n = "+frameSize+
 			[", e = "+deadTime,
@@ -577,6 +629,8 @@ function draw() {
 		[xAxisMode]+
 		", smoothing = "+graphSmoothness,
 			xAxisLabel,yAxisLabel);
+	
+	// actually draw the graphs themselves
 	for(let i=0;i<rateGraphs.length;i++) {
 		noFill();
 		stroke(getColorPicker(i).value);
@@ -584,6 +638,78 @@ function draw() {
 		//graph = windowedAverage(graph,graphSmoothness);
 		graph = convolutionAverage(graph,graphSmoothness);
 		plot(graph,border+1,h+border-1,w*graphScaleX-2,h*graphScaleY-2);
+	}
+	
+	// zoom in by selecting a window
+	if(mouseIsPressed) {
+		if(mousePressedX==-1 && withinGraphFrame(mouseX,mouseY)) {
+			mousePressedX = mouseX;
+			mousePressedY = mouseY;
+		}
+		if(mousePressedX!=-1) {
+			noFill();
+			stroke(255);
+			
+			// draw the selection frame
+			let frame = getMouseSelectionFrame();
+			rect(frame[0],frame[1],frame[2]-frame[0],frame[3]-frame[1]);
+			stroke(255,128);
+			line(frame[0],0,frame[0],height);
+			line(frame[2],0,frame[2],height);
+			line(0,frame[1],width,frame[1]);
+			line(0,frame[3],width,frame[3]);
+		}
+	} else {
+		if(mousePressedX!=-1) {
+			// use the frame somehow
+			
+			if(mouseX==mousePressedX && mouseY==mousePressedY) {
+				
+				// reset frame
+				xAxisMin = 0;
+				xAxisMax = 1;
+				yAxisMin = 0;
+				yAxisMax = 1;
+				reset();
+				
+			} else {
+				
+				let frame = getMouseSelectionFrame();
+				
+				if(withinGraphFrame(frame[0],frame[1],border)
+						|| withinGraphFrame(frame[2],frame[3],border)
+						|| withinGraphFrame(frame[0],frame[3],border)
+						|| withinGraphFrame(frame[2],frame[1],border)) {
+					
+					// account for y-axis being flipped
+					frame[1] = height-max(mouseY,mousePressedY);
+					frame[3] = height-min(mouseY,mousePressedY);
+					
+					// restrict frame to within the graph
+					frame[0] = min(max(frame[0],border),width-border);
+					frame[1] = min(max(frame[1],border),height-border);
+					frame[2] = min(max(frame[2],border),width-border);
+					frame[3] = min(max(frame[3],border),height-border);
+					
+					// map frame to "actual" coordinates
+					frame[0] = (frame[0]-border)/(width-border*2)*(xAxisMax-xAxisMin)+xAxisMin;
+					frame[1] = (frame[1]-border)/(height-border*2)*(yAxisMax-yAxisMin)+yAxisMin;
+					frame[2] = (frame[2]-border)/(width-border*2)*(xAxisMax-xAxisMin)+xAxisMin;
+					frame[3] = (frame[3]-border)/(height-border*2)*(yAxisMax-yAxisMin)+yAxisMin;
+					
+					// apply
+					xAxisMin = frame[0];
+					xAxisMax = frame[2];
+					yAxisMin = frame[1];
+					yAxisMax = frame[3];
+					reset();
+				}
+			
+			}
+			
+			mousePressedX = -1;
+			mousePressedY = -1;
+		}
 	}
 	
 	//document.title = "QKD Binning Demo | FPS: "+frameRate().toFixed(1);
