@@ -56,8 +56,8 @@ function grid(x, y, w, h,
 	line(x,y,x,y+h);
 	line(x,y+h,x+w,y+h);
 	
-	let dpX = max(2,ceil(-log((xAxisMax-xAxisMin)*unitX)/log(10)));
-	let dpY = max(2,ceil(-log((yAxisMax-yAxisMin)*unitY)/log(10)));
+	let dpX = min(max(2,ceil(-log((xAxisMax-xAxisMin)*unitX)/log(10))),5);
+	let dpY = min(max(2,ceil(-log((yAxisMax-yAxisMin)*unitY)/log(10))),5);
 	
 	textAlign(CENTER,TOP);
 	for(let i=0,u;(u=(x+i*tileW))<=(x+w+1);i++) {
