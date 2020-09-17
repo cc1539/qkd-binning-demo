@@ -195,6 +195,8 @@ function convolutionAverage(arr,factor) {
 
 /************** MISC **************/
 
+let outputMode = 0;
+
 function getTestSequence(binType,options,len) {
 	
 	let bin = new binType.constructor();
@@ -203,13 +205,23 @@ function getTestSequence(binType,options,len) {
 	bin.deadTime = options.e||0;
 	let p = options.p||.5;
 	
+	if(outputMode==1) {
+		len *= 8;
+	}
+	
 	let samples = new Int8Array(len);
 	let index = 0;
 	
 	while(index<len) {
 		bin.write(Math.random()<p);
-		while(bin.getOutput().length()>=8 && index<len) {
-			samples[index++] = bin.getOutput().readInt(8);
+		if(outputMode==0) {
+			while(bin.getOutput().length()>=8 && index<len) {
+				samples[index++] = bin.getOutput().readInt(8);
+			}
+		} else {
+			while(bin.getOutput().ready()) {
+				samples[index++] = bin.getOutput().read()?'1':'0';
+			}
 		}
 	}
 	
@@ -218,7 +230,7 @@ function getTestSequence(binType,options,len) {
 
 function download(data,name) {
 	let link = document.createElement("a");
-	link.href = window.URL.createObjectURL(new Blob([data],{type:"octet/stream"}));
+	link.href = window.URL.createObjectURL(new Blob(outputMode==0?[data]:data,{type:"octet/stream"}));
 	link.download = name;
 	link.click();
 	window.URL.revokeObjectURL(link.href);
@@ -540,6 +552,7 @@ function setup() {
 	// set up test sample downloader
 	
 	document.getElementById("sample-download-button").onclick = function() {
+		outputMode = document.querySelector('select[name="test-output-mode"]').selectedIndex;
 		download(getTestSequence(binTypes[document.querySelector('select[name="test-graph-type"]').selectedIndex],{
 			n: 1<<(document.querySelector('select[name="test-frame-size"]').selectedIndex+3),
 			k: 1<<(document.querySelector('select[name="test-bin-size"]')),
