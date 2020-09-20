@@ -38,7 +38,9 @@ class RandomAnalysis extends BitStream {
 	}
 	
 	clear() {
-		this.bins.fill(0);
+		if(this.bins!=null) {
+			this.bins.fill(0);
+		}
 		this.counts = 0;
 		this.edges = 0;
 		this.samples = 0;

@@ -199,10 +199,10 @@ let outputMode = 0;
 
 function getTestSequence(binType,options,len) {
 	
-	let bin = new binType.constructor();
+	let bin = createBin(binType);
 	bin.setFrameSize(options.n||8);
 	bin.setBinSize(options.k||1);
-	bin.deadTime = options.e||0;
+	bin.setDeadTime(options.e||0);
 	let p = options.p||.5;
 	
 	if(outputMode==1) {
@@ -289,7 +289,7 @@ async function updateGraphs(iterations) {
 	}
 	
 	await !keyIsPressed;
-
+	
 	for(let i=0;i<bins.length;i++) {
 		for(let j=0;j<bins[0].length;j++) {
 			
@@ -359,24 +359,32 @@ function getAvailablePaletteColor() {
 	return "#"+rgba2hex(color(255));
 }
 
+function createBin(binType) {
+	//return new binType.constructor();
+	let binScheme = new BinningScheme();
+	binScheme.setSchemeType(binType);
+	binScheme.setSchemeCount(1);
+	return binScheme;
+}
+
 function addGraph(typeIndex,index) {
 	
 	if(index==null) {
 		index = bins.length;
 	}
 	
-	let newBins = Array(graphSamples).fill(0).map(y=>new binTypes[typeIndex].constructor());
+	let newBins = Array(graphSamples).fill(0).map(y=>createBin(binTypes[typeIndex]));
 	newBins.forEach(y=>{
 		y.setFrameSize(frameSize);
 		y.setBinSize(1);
 	});
 	if(xAxisMode==0) {
 		newBins.forEach(y=>{
-			y.deadTime = deadTime;
+			y.setDeadTime(deadTime);
 		});
 	} else {
 		newBins.forEach((y,i)=>{
-			y.deadTime = i;
+			y.setDeadTime(i);
 		});
 	}
 	bins.splice(index,0,newBins);
@@ -412,7 +420,7 @@ function addGraph(typeIndex,index) {
 
 function deleteGraph(index) {
 	if(index<0) {
-		console.log("hey");
+		console.log("glitch...");
 		return; // glitch?
 	}
 	bins.splice(index,1);
@@ -448,13 +456,21 @@ function handleNumInput(input,callback) {
 
 function applyDeadTime() {
 	bins.forEach(x=>x.forEach([
-		(y=>y.deadTime=deadTime),
-		((y,i)=>y.deadTime=i)
+		(y=>y.setDeadTime(deadTime)),
+		((y,i)=>y.setDeadTime(i))
 	][xAxisMode]));
 }
 
+function getSelection(name) {
+	return document.querySelector('select[name="'+name+'"]');
+}
+
+function getInput(name) {
+	return document.querySelector('input[name="'+name+'"]');
+}
+
 function setDetectorCount(n) {
-	bins.forEach(x=>x.forEach(y=>y.deadTimers=Array(n).fill(0)));
+	bins.forEach(x=>x.forEach(y=>y.setDeadTimerCount(n)));
 }
 
 function setup() {
@@ -496,17 +512,20 @@ function setup() {
 		labelText[i] = bins[i][0].getName();
 	}
 	
+	
+	// handlers for the dropdown menus and number inputs:
+	
 	document.querySelector("#graph-control-panel > .add-control").onclick = function() {
 		if(bins.length<8) {
 			addGraph(0);
 		}
 	};
 	
-	document.querySelector('select[name="y-axis"]').onchange = function() {
+	getSelection("y-axis").onchange = function() {
 		yAxisMode = this.selectedIndex;
 	};
 	
-	document.querySelector('select[name="x-axis"]').onchange = function() {
+	getSelection("x-axis").onchange = function() {
 		xAxisMode = this.selectedIndex;
 		["downtime-control","probability-control"]
 			.map(e=>document.getElementById(e))
@@ -515,14 +534,14 @@ function setup() {
 		reset();
 	};
 	
-	document.querySelector('select[name="frame-size"]').onchange = function() {
+	getSelection("frame-size").onchange = function() {
 		let newFrameSize = 1<<(this.selectedIndex+3);
 		bins.forEach(x=>x.forEach(y=>y.setFrameSize(newFrameSize)));
 		reset();
 		frameSize = newFrameSize;
 	};
 	
-	document.querySelector('input[name="down-time"]').onchange = function() {
+	getInput("down-time").onchange = function() {
 		handleNumInput(this,function(num){
 			deadTime = num;
 			applyDeadTime();
@@ -530,7 +549,7 @@ function setup() {
 		});
 	};
 	
-	document.querySelector('input[name="probability"]').onchange = function() {
+	getInput("probability").onchange = function() {
 		handleNumInput(this,function(num){
 			probability = num;
 			applyDeadTime();
@@ -538,27 +557,46 @@ function setup() {
 		});
 	};
 	
-	document.querySelector('input[name="detector-count"]').onchange = function() {
+	getInput("detector-count").onchange = function() {
 		handleNumInput(this,function(num){
-			setDetectorCount(num);
-			reset();
+			let interleaveMode = getSelection("interleave-mode");
+			if(interleaveMode.selectedIndex==1) {
+				setDetectorCount(1);
+				interleaveMode.onchange();
+			} else {
+				setDetectorCount(num);
+				reset();
+			}
 		});
 	};
 	
-	document.querySelector('select[name="graph-smoothing"]').onchange = function() {
+	getSelection("interleave-mode").onchange = function() {
+		let schemeCount = 1;
+		if(this.selectedIndex==1) {
+			schemeCount = parseInt(getInput("detector-count").value);
+			if(isNaN(schemeCount)) {
+				schemeCount = 1;
+			}
+		}
+		bins.forEach(x=>x.forEach(y=>y.setSchemeCount(schemeCount)));
+		setDetectorCount(1);
+		reset();
+	};
+	
+	getSelection("graph-smoothing").onchange = function() {
 		graphSmoothness = parseInt(this.options[this.selectedIndex].innerHTML);
 	};
 	
 	// set up test sample downloader
 	
 	document.getElementById("sample-download-button").onclick = function() {
-		outputMode = document.querySelector('select[name="test-output-mode"]').selectedIndex;
-		download(getTestSequence(binTypes[document.querySelector('select[name="test-graph-type"]').selectedIndex],{
-			n: 1<<(document.querySelector('select[name="test-frame-size"]').selectedIndex+3),
-			k: 1<<(document.querySelector('select[name="test-bin-size"]')),
-			e: document.querySelector('input[name="test-down-time"]').value,
-			p: document.querySelector('input[name="test-probability"]').value,
-		},document.querySelector('input[name="test-length"]').value),"sample.bin");
+		outputMode = getSelection("test-output-mode").selectedIndex;
+		download(getTestSequence(binTypes[getSelection("test-graph-type").selectedIndex],{
+			n: 1<<(getSelection("test-frame-size").selectedIndex+3),
+			k: 1<<(getSelection("test-bin-size")),
+			e: getInput("test-down-time").value,
+			p: getInput("test-probability").value,
+		},getInput("test-length").value),"sample.bin");
 	};
 	
 }

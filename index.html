@@ -18,6 +18,8 @@
 		<script src="qkdcode/AdaptiveAggregatedBinning.js"></script>
 		<script src="qkdcode/AdaptiveFraming.js"></script>
 		
+		<script src="qkdcode/BinningScheme.js"></script>
+		
 		<script src="main.js"></script>
 		
 	</head>
@@ -77,6 +79,13 @@
 					<br>
 					<label name="detector-count">Detector Count: </label>
 					<input type="number" name="detector-count" value="1" min="1" max="1000" onfocus="this.pvalue=this.value;">
+					
+					<br>
+					<label name="interleave-mode">Interleave Mode: </label>
+					<select name="interleave-mode">
+						<option>Input Interleaved</option>
+						<option>Output Interleaved</option>
+					</select>
 					
 					<br>
 					<label name="graph-smoothing">Smoothing Parameter: </label>
