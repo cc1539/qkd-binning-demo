@@ -342,6 +342,11 @@ function getColorPicker(index) {
 	return graphControlPanel.children[index].querySelector("#graph-color");
 }
 
+function setColorPicker(index,color) {
+	graphControlPanel.children[index].querySelector("#graph-settings").style = "background-color:"+color;
+	getColorPicker(index).value = color;
+}
+
 function getAvailablePaletteColor() {
 	for(let i=0;i<defaultPalette.length;i++) {
 		let taken = false;
@@ -401,7 +406,16 @@ function addGraph(typeIndex,index) {
 		let color = getColorPicker(index).value;
 		deleteGraph(index);
 		addGraph(schemeSelect.selectedIndex,index);
-		getColorPicker(index).value = color;
+		//getColorPicker(index).value = color;
+		setColorPicker(index,color);
+	};
+	
+	entry.querySelector("#graph-color").onchange = function() {
+		entry.querySelector("#graph-settings").style = "background-color:"+this.value;
+	};
+	
+	entry.querySelector("#graph-settings").onclick = function() {
+		getColorPicker(index).click();
 	};
 	
 	 // x-out button
@@ -415,7 +429,8 @@ function addGraph(typeIndex,index) {
 	graphControlPanel.insertBefore(entry,graphControlPanel.children[index]);
 	entry = graphControlPanel.children[index];
 	
-	getColorPicker(index).value = getAvailablePaletteColor();
+	//getColorPicker(index).value = getAvailablePaletteColor();
+	setColorPicker(index,getAvailablePaletteColor());
 }
 
 function deleteGraph(index) {

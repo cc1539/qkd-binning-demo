@@ -16,6 +16,10 @@ p {
 	font-size: 10px;
 }
 
+h2 {
+	color: white;
+}
+
 select {
 	border-radius: 3px;
 	
@@ -163,8 +167,8 @@ canvas {
 	width: 15px;
 	height: 15px;
 	
-	top: -10px;
-	left: -5px;
+	top: -12px;
+	left: 0px;
 	
 	border-radius: 100%;
 	
@@ -236,4 +240,17 @@ button:not(.remove) {
 
 .bottom-panel::-webkit-scrollbar-thumb {
 	background-color: #888888;
+}
+
+.graph-control > img {
+	position: relative;
+	width: 20px;
+	height: 20px;
+	margin-left: -2px;
+	margin-right: 5px;
+	top: -4px;
+}
+
+select[name='graph-type'] {
+	margin-top: 10px;
 }
