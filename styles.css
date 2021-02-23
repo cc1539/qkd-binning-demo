@@ -160,6 +160,15 @@ canvas {
 	height: calc(100% - 7px);
 }
 
+input[type="checkbox"] {
+	position: relative;
+	top: 2px;
+}
+
+input[type="checkbox"]:checked {
+	background-color: black;
+}
+
 .graph-control > .remove {
 	
 	position: relative;

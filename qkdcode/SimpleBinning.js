@@ -116,5 +116,53 @@ class SimpleBinning extends BitStream {
 	getName() {
 		return "sb";
 	}
+
+	getKeyRate(n,d,t,dl,dr) {
+		if(d==null) {
+			let bin = n;
+			n = bin.length();
+			let count = bin.replace("0","").length();
+			return ((count==1) || ((n-count)==1))?((log(n)/log(2))/n):0;
+		}
+		return (t.a==1 || (n-t.a)==1)?((log(n)/log(2))/n):0;
+	}
+	
+	applySpecific(bin,n) {
+		let out = [];
+		let bitsPerFrame = log2(n);
+		for(let i=0;i<bin.length/n*n;i+=n) {
+			let a = -1;
+			let b = -1;
+			for(let j=0;j<n;j++) {
+				if(bin[i+j])
+					{ a=(a==-1)?j:(a>=0)?-2:a; } else
+					{ b=(b==-1)?j:(b>=0)?-2:b; }
+			}
+			let index = 0;
+			if(a>=0) { index = a; } else
+			if(b>=0) { index = b; } else
+			{ continue; }
+			for(let j=0;j<bitsPerFrame;j++) {
+				out.push((index&(1<<j))!=0);
+			}
+		}
+		return out;
+	}
+    
+	apply(key) {
+		let bin = Array(key.length).fill(false);
+		for(let i=0;i<bin.length;i++) {
+			if(key.charAt(i)=='1') {
+				bin[i] = true;
+			}
+		}
+		let out = this.applySpecific(bin,bin.length);
+		let outStr = "";
+		for(let i=0;i<out.length;i++) {
+			outStr += (out[i]?'1':'0');
+		}
+		return outStr;
+	}
 	
 }
+

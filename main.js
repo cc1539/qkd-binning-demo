@@ -4,6 +4,9 @@
 
 
 function plot(data,x,y,w,h) {
+	if(data==null) {
+		return;
+	}
 	//let inCurve = false;
 	beginShape();
 	for(let i=0;i<data.length;i++) {
@@ -120,15 +123,23 @@ function log2ceil(n) { // smallest integer m such that 2^m >= n, return 2^m
 }
 
 function fact(n) { // factorial
-	return 0; // todo
+	let out = 1;
+	for(let i=2;i<=n;i++) {
+		out *= i;
+	}
+	return out;
 }
 
 function perm(n) { // permutations
 	return 0; // todo
 }
 
-function comb(n) { // combinations
-	return 0; // todo
+function comb(n,k) { // combinations
+	return fact(n)/(fact(k)*fact(n-k));
+}
+
+function shuffleCount(a,b) {
+	return fact(a+b)/(fact(a)*fact(b));
 }
 
 function entropy(p, base) {
@@ -252,6 +263,8 @@ let binTypes = [
 	AdaptiveFraming.prototype,
 ];
 
+let ideal = [];
+
 let bins = [];
 let rateGraphs = [];
 let randGraphs = [];
@@ -281,6 +294,65 @@ let yAxisMax = 1;
 
 let mousePressedX = -1;
 let mousePressedY = -1;
+
+let n = frameSize;
+let d = deadTime;
+let scheme = binTypes[0];
+let a = 0;
+
+let showMarkovAnalysis = false;
+
+function updateIdealGraphs() {
+	
+	n = frameSize;
+	d = deadTime;
+	scheme = binTypes[0];
+	a = 0;
+	
+	let tbmc = new TimeBinningMarkovChain(n,d,scheme);
+
+	let maxEntropy = 0;
+	
+	let maxP = 0;
+	let maxS = 0;
+	let entS = 0;
+	
+	let stateCount = tbmc.transitions.length;
+	console.log("the markov chain has "+stateCount+" states");
+	let noratestates = 0;
+	for(let i=0;i<stateCount;i++) {
+		if(tbmc.transitions[i].rate==0) {
+			noratestates++;
+		}
+	}
+	console.log("..."+noratestates+" of which do not give any key bits.");
+	console.log("a speed-up of ~"+round(pow(stateCount/(stateCount-noratestates),2))+"x is in order");
+	
+	ideal = LinAlg.array2d(3,graphSamples);
+	for(let i=0;i<ideal[0].length;i++) {
+		let p = i/(ideal[0].length-1)*(1-a);
+
+		// ORIGINAL WORKING
+		let limit = tbmc.transition(p);
+		let state = tbmc.stationaryFromMatrix(0,limit);
+		ideal[0][i] = tbmc.entropyFromMatrix(limit,state,true);
+		ideal[1][i] = tbmc.keyrateFromState(state);
+		maxEntropy = max(maxEntropy,isNaN(ideal[0][i])?0:ideal[0][i]);
+		
+		progress = p;
+	}
+	for(let i=0;i<ideal[0].length;i++) {
+		ideal[0][i] /= maxEntropy;
+		ideal[2][i] = ideal[0][i]*ideal[1][i];
+		
+		if(ideal[1][i]>maxS) {
+			maxS = ideal[1][i];
+			maxP = i/(ideal[0].length-1)*(1-a);
+			entS = ideal[0][i];
+		}
+	}
+	
+}
 
 async function updateGraphs(iterations) {
 	
@@ -320,6 +392,9 @@ function reset() {
 	for(let j=0;j<bins[0].length;j++) {
 		bins[i][j].clear();
 	}
+	}
+	if(showMarkovAnalysis) {
+		updateIdealGraphs();
 	}
 }
 
@@ -452,6 +527,7 @@ function setFrameSize(n) {
 		bins[i][j].setFrameSize(n);
 	}
 	}
+	// todo: ideal
 }
 
 function handleNumInput(input,callback) {
@@ -474,6 +550,7 @@ function applyDeadTime() {
 		(y=>y.setDeadTime(deadTime)),
 		((y,i)=>y.setDeadTime(i))
 	][xAxisMode]));
+	// todo: ideal
 }
 
 function getSelection(name) {
@@ -614,6 +691,15 @@ function setup() {
 		},getInput("test-length").value),"sample.bin");
 	};
 	
+	getInput("markov-analysis").onchange = ()=>{
+		if(getInput("markov-analysis").checked) {
+			showMarkovAnalysis = true;
+			updateIdealGraphs();
+		} else {
+			showMarkovAnalysis = false;
+		}
+	};
+	
 }
 
 function keyTyped() {
@@ -704,6 +790,27 @@ function draw() {
 		//graph = windowedAverage(graph,graphSmoothness);
 		graph = convolutionAverage(graph,graphSmoothness);
 		plot(graph,border+1,h+border-1,w*graphScaleX-2,h*graphScaleY-2);
+	}
+	
+	// actually draw the ideal graphs
+	if(showMarkovAnalysis) {
+		noFill();
+		let keyRatePlot = ideal[1];
+		let entropyPlot = ideal[0];
+		let infoRatePlot = ideal[2];
+		if(yAxisMode==0) {
+			keyRatePlot = [];
+			infoRatePlot = [];
+			for(let i=0;i<ideal[1].length;i++) {
+				let p = i/(ideal[1].length-1);
+				let Hx = entropy(p);
+				keyRatePlot[i] = ideal[1][i]/Hx;
+				infoRatePlot[i] = ideal[2][i]/Hx;
+			}
+		}
+		stroke(255,0,0); plot(keyRatePlot,border+1,h+border-1,w*graphScaleX-2,h*graphScaleY-2);
+		stroke(0,255,0); plot(entropyPlot,border+1,h+border-1,w*graphScaleX-2,h*graphScaleY-2);
+		stroke(255,0,255); plot(infoRatePlot,border+1,h+border-1,w*graphScaleX-2,h*graphScaleY-2);
 	}
 	
 	// zoom in by selecting a window
