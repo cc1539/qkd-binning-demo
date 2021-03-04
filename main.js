@@ -381,7 +381,7 @@ async function updateGraphs(iterations) {
 				bins[i][j].getOutput().read();
 			}
 			
-			let h = yAxisMode==1?1:entropy(p);
+			let h = yAxisMode==1?1:(entropy(p)/(p*d+1));
 			rateGraphs[i][j] = h==0?0:(bins[i][j].getRawKeyRate()/h);
 			randGraphs[i][j] = bins[i][j].getAnalysis().getRandomness();
 		}
@@ -844,7 +844,7 @@ function draw() {
 			infoRatePlot = [];
 			for(let i=0;i<ideal[index][1].length;i++) {
 				let p = i/(ideal[index][1].length-1);
-				let Hx = entropy(p);
+				let Hx = entropy(p)/(p*d+1);
 				keyRatePlot[i] = ideal[index][1][i]/Hx;
 				infoRatePlot[i] = ideal[index][2][i]/Hx;
 			}
