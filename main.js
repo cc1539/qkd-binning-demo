@@ -300,13 +300,18 @@ let d = deadTime;
 let scheme = binTypes[0];
 let a = 0;
 
-let showMarkovAnalysis = false;
+let showMarkovAnalysis = {
+	sb: false,
+	ab: false,
+	aab: false,
+	af: false
+};
 
-function updateIdealGraphs() {
+function updateIdealGraphs(schemeIndex) {
 	
 	n = frameSize;
 	d = deadTime;
-	scheme = binTypes[0];
+	scheme = binTypes[schemeIndex];
 	a = 0;
 	
 	let tbmc = new TimeBinningMarkovChain(n,d,scheme);
@@ -328,27 +333,27 @@ function updateIdealGraphs() {
 	console.log("..."+noratestates+" of which do not give any key bits.");
 	console.log("a speed-up of ~"+round(pow(stateCount/(stateCount-noratestates),2))+"x is in order");
 	
-	ideal = LinAlg.array2d(3,graphSamples);
-	for(let i=0;i<ideal[0].length;i++) {
-		let p = i/(ideal[0].length-1)*(1-a);
+	ideal[schemeIndex] = LinAlg.array2d(3,graphSamples);
+	for(let i=0;i<ideal[schemeIndex][0].length;i++) {
+		let p = i/(ideal[schemeIndex][0].length-1)*(1-a);
 
 		// ORIGINAL WORKING
 		let limit = tbmc.transition(p);
 		let state = tbmc.stationaryFromMatrix(0,limit);
-		ideal[0][i] = tbmc.entropyFromMatrix(limit,state,true);
-		ideal[1][i] = tbmc.keyrateFromState(state);
-		maxEntropy = max(maxEntropy,isNaN(ideal[0][i])?0:ideal[0][i]);
+		ideal[schemeIndex][0][i] = tbmc.entropyFromMatrix(limit,state,true);
+		ideal[schemeIndex][1][i] = tbmc.keyrateFromState(state);
+		maxEntropy = max(maxEntropy,isNaN(ideal[schemeIndex][0][i])?0:ideal[schemeIndex][0][i]);
 		
 		progress = p;
 	}
-	for(let i=0;i<ideal[0].length;i++) {
-		ideal[0][i] /= maxEntropy;
-		ideal[2][i] = ideal[0][i]*ideal[1][i];
+	for(let i=0;i<ideal[schemeIndex][0].length;i++) {
+		ideal[schemeIndex][0][i] /= maxEntropy;
+		ideal[schemeIndex][2][i] = ideal[schemeIndex][0][i]*ideal[schemeIndex][1][i];
 		
-		if(ideal[1][i]>maxS) {
-			maxS = ideal[1][i];
-			maxP = i/(ideal[0].length-1)*(1-a);
-			entS = ideal[0][i];
+		if(ideal[schemeIndex][1][i]>maxS) {
+			maxS = ideal[schemeIndex][1][i];
+			maxP = i/(ideal[schemeIndex][0].length-1)*(1-a);
+			entS = ideal[schemeIndex][0][i];
 		}
 	}
 	
@@ -393,8 +398,17 @@ function reset() {
 		bins[i][j].clear();
 	}
 	}
-	if(showMarkovAnalysis) {
-		updateIdealGraphs();
+	if(showMarkovAnalysis.sb) {
+		updateIdealGraphs(0);
+	}
+	if(showMarkovAnalysis.ab) {
+		updateIdealGraphs(1);
+	}
+	if(showMarkovAnalysis.aab) {
+		updateIdealGraphs(2);
+	}
+	if(showMarkovAnalysis.af) {
+		updateIdealGraphs(3);
 	}
 }
 
@@ -691,12 +705,39 @@ function setup() {
 		},getInput("test-length").value),"sample.bin");
 	};
 	
-	getInput("markov-analysis").onchange = ()=>{
-		if(getInput("markov-analysis").checked) {
-			showMarkovAnalysis = true;
-			updateIdealGraphs();
+	getInput("markov-analysis-sb").onchange = ()=>{
+		if(getInput("markov-analysis-sb").checked) {
+			showMarkovAnalysis.sb = true;
+			updateIdealGraphs(0);
 		} else {
-			showMarkovAnalysis = false;
+			showMarkovAnalysis.sb = false;
+		}
+	};
+	
+	getInput("markov-analysis-ab").onchange = ()=>{
+		if(getInput("markov-analysis-ab").checked) {
+			showMarkovAnalysis.ab = true;
+			updateIdealGraphs(1);
+		} else {
+			showMarkovAnalysis.ab = false;
+		}
+	};
+	
+	getInput("markov-analysis-aab").onchange = ()=>{
+		if(getInput("markov-analysis-aab").checked) {
+			showMarkovAnalysis.aab = true;
+			updateIdealGraphs(2);
+		} else {
+			showMarkovAnalysis.aab = false;
+		}
+	};
+	
+	getInput("markov-analysis-af").onchange = ()=>{
+		if(getInput("markov-analysis-af").checked) {
+			showMarkovAnalysis.af = true;
+			updateIdealGraphs(3);
+		} else {
+			showMarkovAnalysis.af = false;
 		}
 	};
 	
@@ -793,24 +834,36 @@ function draw() {
 	}
 	
 	// actually draw the ideal graphs
-	if(showMarkovAnalysis) {
+	let drawIdeal = index=>{
 		noFill();
-		let keyRatePlot = ideal[1];
-		let entropyPlot = ideal[0];
-		let infoRatePlot = ideal[2];
+		let keyRatePlot = ideal[index][1];
+		let entropyPlot = ideal[index][0];
+		let infoRatePlot = ideal[index][2];
 		if(yAxisMode==0) {
 			keyRatePlot = [];
 			infoRatePlot = [];
-			for(let i=0;i<ideal[1].length;i++) {
-				let p = i/(ideal[1].length-1);
+			for(let i=0;i<ideal[index][1].length;i++) {
+				let p = i/(ideal[index][1].length-1);
 				let Hx = entropy(p);
-				keyRatePlot[i] = ideal[1][i]/Hx;
-				infoRatePlot[i] = ideal[2][i]/Hx;
+				keyRatePlot[i] = ideal[index][1][i]/Hx;
+				infoRatePlot[i] = ideal[index][2][i]/Hx;
 			}
 		}
 		stroke(255,0,0); plot(keyRatePlot,border+1,h+border-1,w*graphScaleX-2,h*graphScaleY-2);
 		stroke(0,255,0); plot(entropyPlot,border+1,h+border-1,w*graphScaleX-2,h*graphScaleY-2);
 		stroke(255,0,255); plot(infoRatePlot,border+1,h+border-1,w*graphScaleX-2,h*graphScaleY-2);
+	};
+	if(showMarkovAnalysis.sb) {
+		drawIdeal(0);
+	}
+	if(showMarkovAnalysis.ab) {
+		drawIdeal(1);
+	}
+	if(showMarkovAnalysis.aab) {
+		drawIdeal(2);
+	}
+	if(showMarkovAnalysis.af) {
+		drawIdeal(3);
 	}
 	
 	// zoom in by selecting a window

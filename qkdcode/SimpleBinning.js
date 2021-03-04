@@ -118,12 +118,6 @@ class SimpleBinning extends BitStream {
 	}
 
 	getKeyRate(n,d,t,dl,dr) {
-		if(d==null) {
-			let bin = n;
-			n = bin.length();
-			let count = bin.replace("0","").length();
-			return ((count==1) || ((n-count)==1))?((log(n)/log(2))/n):0;
-		}
 		return (t.a==1 || (n-t.a)==1)?((log(n)/log(2))/n):0;
 	}
 	
