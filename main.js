@@ -820,7 +820,7 @@ function draw() {
 	])[xAxisMode];
 	labels(x,y,w,h,
 		"n = "+frameSize+
-			[", e = "+deadTime,
+			[", d = "+deadTime,
 			 ", p = "+probability]
 		[xAxisMode]+
 		", smoothing = "+graphSmoothness,
