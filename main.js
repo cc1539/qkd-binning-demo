@@ -62,6 +62,8 @@ function grid(x, y, w, h,
 	let dpX = min(max(2,ceil(-log((xAxisMax-xAxisMin)*unitX)/log(10))),5);
 	let dpY = min(max(2,ceil(-log((yAxisMax-yAxisMin)*unitY)/log(10))),5);
 	
+	noStroke();
+	
 	textAlign(CENTER,TOP);
 	for(let i=0,u;(u=(x+i*tileW))<=(x+w+1);i++) {
 		line(u,y+h,u,y+h+2);
@@ -78,6 +80,7 @@ function grid(x, y, w, h,
 }
 
 function labels(x, y, w, h, main, axisX, axisY) {
+	noStroke();
 	fill(255);
 	textAlign(CENTER,BOTTOM);
 	push();
