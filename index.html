@@ -26,6 +26,11 @@
 	<body>
 	
 		<div id="canvas-holder"></div>
+		
+		<div id="control-panel-cards">
+			
+		</div>
+		
 		<div id="control-panel">
 		
 			<div id="graph-control-panel" class="bottom-panel">
@@ -53,6 +58,7 @@
 						<option value="e">Detector Downtime (e)</option>
 					</select>
 					
+					<!--
 					<span id="downtime-control">
 						<br>
 						<label name="down-time">Detector Downtime (e): </label>
@@ -86,7 +92,7 @@
 						<option>Input Interleaved</option>
 						<option>Output Interleaved</option>
 					</select>
-					
+					-->
 					<br>
 					<label name="graph-smoothing">Smoothing Parameter: </label>
 					<select name="graph-smoothing">
@@ -204,7 +210,50 @@
 				</div>
 			</template>
 			
+			<template id="single-graph-control-template">
+				<div class="single-graph-control-panel">
+					
+					<button class="single-color-control">Change Graph Color</button>
+					
+					<span class="single-downtime-control">
+						<br>
+						<label name="down-time">Detector Downtime (e): </label>
+						<input type="number" name="down-time" value="0" min="0" max="512" onfocus="this.pvalue=this.value;">
+					</span>
+					
+					<span style="display:none;" class="single-probability-control">
+						<br>
+						<label name="probability">Probability (p): </label>
+						<input type="number" name="probability" value="0.5" min="0" max="1" step="0.1" onfocus="this.pvalue=this.value;">
+					</span>
+					
+					<br>
+					<label name="frame-size" class="single-frame-size">Frame size: </label>
+					<select name="frame-size">
+						<option>n=4</option>
+						<option>n=8</option>
+						<option>n=16</option>
+						<option>n=32</option>
+						<option>n=64</option>
+						<option>n=128</option>
+						<option>n=256</option>
+					</select>
+					
+					<br>
+					<label name="detector-count" class="single-detector-count">Detector Count: </label>
+					<input type="number" name="detector-count" value="1" min="1" max="1000" onfocus="this.pvalue=this.value;">
+					
+					<br>
+					<label name="interleave-mode" class="single-interleave-mode">Interleave Mode: </label>
+					<select name="interleave-mode">
+						<option>Input Interleaved</option>
+						<option>Output Interleaved</option>
+					</select>
+					
+				</div>
+			</template>
+			
 		</div>
-		
+	
 	</body>
 </html>

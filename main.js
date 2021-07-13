@@ -238,7 +238,7 @@ function download(data,name) {
 
 /************** MAIN / USER INTERFACE **************/
 
-let frameSize = 8;
+let frameSize = 4;
 let deadTime = 0;
 let probability = 0.5;
 let graphSmoothness = 0;
@@ -270,6 +270,7 @@ let graphUpdateInterval = null;
 
 let graphControlPanel;
 let controlTemplate;
+let singleControlTemplate;
 
 let xAxisMode = 0;
 let yAxisMode = 0;
@@ -313,6 +314,12 @@ async function updateGraphs(iterations) {
 	graphUpdateInterval = setInterval(function(){
 		updateGraphs(32*8/bins.length);
 	},10);
+}
+
+function resetSingle(index) {
+	for(let j=0;j<bins[index].length;j++) {
+		bins[index][j].clear();
+	}
 }
 
 function reset() {
@@ -415,7 +422,75 @@ function addGraph(typeIndex,index) {
 	};
 	
 	entry.querySelector("#graph-settings").onclick = function() {
-		getColorPicker(index).click();
+		//getColorPicker(index).click();
+		let cards = document.getElementById("control-panel-cards");
+		let panel = singleControlTemplate.content.cloneNode(true);
+		cards.appendChild(panel);
+		panel = cards.lastElementChild;
+		panel.style = "border-top: 5px "+getColorPicker(index).value+" solid";
+		panel.onmouseover = function() {
+			document.getElementById("defaultCanvas0").mouseover = false;
+		};
+		panel.onmouseout = function() {
+			document.getElementById("defaultCanvas0").mouseover = true;
+		};
+		
+		/******************************/
+		
+		getSelection("frame-size").onchange = function() {
+			let newFrameSize = 1<<(this.selectedIndex+2);
+			bins[index].forEach(y=>y.setFrameSize(newFrameSize));
+			resetSingle(index);
+			frameSize = newFrameSize;
+		};
+		
+		getInput("down-time").onchange = function() {
+			handleNumInput(this,function(num){
+				deadTime = num;
+				// TODO; make this actually work
+				applySingleDeadTime(index);
+				resetSingle(index);
+			});
+		};
+		
+		getInput("probability").onchange = function() {
+			handleNumInput(this,function(num){
+				probability = num;
+				// TODO; make this actually work
+				applySingleDeadTime(index);
+				resetSingle(index);
+			});
+		};
+		
+		getInput("detector-count").onchange = function() {
+			handleNumInput(this,function(num){
+				let interleaveMode = getSelection("interleave-mode");
+				// TODO
+				if(interleaveMode.selectedIndex==1) {
+					setDetectorCount(1);
+					interleaveMode.onchange();
+				} else {
+					setDetectorCount(num);
+					resetSingle(index);
+				}
+			});
+		};
+		
+		getSelection("interleave-mode").onchange = function() {
+			let schemeCount = 1;
+			if(this.selectedIndex==1) {
+				schemeCount = parseInt(getInput("detector-count").value);
+				if(isNaN(schemeCount)) {
+					schemeCount = 1;
+				}
+			}
+			bins[index].forEach(y=>y.setSchemeCount(schemeCount));
+			setDetectorCount(1);
+			resetSingle(index);
+		};
+		
+		/******************************/
+		
 	};
 	
 	 // x-out button
@@ -476,6 +551,13 @@ function applyDeadTime() {
 	][xAxisMode]));
 }
 
+function applySingleDeadTime(index) {
+	bins[index].forEach([
+		(y=>y.setDeadTime(deadTime)),
+		((y,i)=>y.setDeadTime(i))
+	][xAxisMode]);
+}
+
 function getSelection(name) {
 	return document.querySelector('select[name="'+name+'"]');
 }
@@ -493,10 +575,12 @@ function setup() {
 	createCanvas(840,640);
 	
 	let canvas = document.getElementById("defaultCanvas0");
+	canvas.mouseover = true;
 	document.getElementById("canvas-holder").appendChild(canvas);
 	
 	graphControlPanel = document.getElementById("graph-control-panel");
 	controlTemplate = document.getElementById("graph-control-template");
+	singleControlTemplate = document.getElementById("single-graph-control-template");
 	
 	textFont("Source Code Pro");
 	
@@ -542,13 +626,15 @@ function setup() {
 	
 	getSelection("x-axis").onchange = function() {
 		xAxisMode = this.selectedIndex;
+		/*
 		["downtime-control","probability-control"]
 			.map(e=>document.getElementById(e))
 			.forEach((x,i)=>x.style.display=(i==xAxisMode?"":"none"));
+		*/
 		applyDeadTime();
 		reset();
 	};
-	
+	/*
 	getSelection("frame-size").onchange = function() {
 		let newFrameSize = 1<<(this.selectedIndex+3);
 		bins.forEach(x=>x.forEach(y=>y.setFrameSize(newFrameSize)));
@@ -597,7 +683,7 @@ function setup() {
 		setDetectorCount(1);
 		reset();
 	};
-	
+	*/
 	getSelection("graph-smoothing").onchange = function() {
 		graphSmoothness = parseInt(this.options[this.selectedIndex].innerHTML);
 	};
@@ -642,7 +728,7 @@ function withinGraphFrame(x,y,border) {
 function draw() {
 	
 	background(0);
-	
+	/*
 	if(keyIsPressed) {
 		switch(key) {
 			case 's': {
@@ -657,7 +743,7 @@ function draw() {
 			} break;
 		}
 	}
-	
+	*/
 	if(notifTimer>0) {
 		fill(min(255,notifTimer));
 		notifTimer -= 4;
@@ -689,11 +775,12 @@ function draw() {
 		"Down time (e)"
 	])[xAxisMode];
 	labels(x,y,w,h,
+	/*
 		"n = "+frameSize+
 			[", e = "+deadTime,
 			 ", p = "+probability]
 		[xAxisMode]+
-		", smoothing = "+graphSmoothness,
+		", smoothing = "+graphSmoothness*/"",
 			xAxisLabel,yAxisLabel);
 	
 	// actually draw the graphs themselves
@@ -706,76 +793,85 @@ function draw() {
 		plot(graph,border+1,h+border-1,w*graphScaleX-2,h*graphScaleY-2);
 	}
 	
-	// zoom in by selecting a window
-	if(mouseIsPressed) {
-		if(mousePressedX==-1 && withinGraphFrame(mouseX,mouseY)) {
-			mousePressedX = mouseX;
-			mousePressedY = mouseY;
+	let canvas = document.getElementById("defaultCanvas0");
+	if(canvas.mouseover) {
+		
+		if(mouseIsPressed) {
+			document.getElementById("control-panel-cards").innerHTML = null;
 		}
-		if(mousePressedX!=-1) {
-			noFill();
-			stroke(255);
-			
-			// draw the selection frame
-			let frame = getMouseSelectionFrame();
-			rect(frame[0],frame[1],frame[2]-frame[0],frame[3]-frame[1]);
-			stroke(255,128);
-			line(frame[0],0,frame[0],height);
-			line(frame[2],0,frame[2],height);
-			line(0,frame[1],width,frame[1]);
-			line(0,frame[3],width,frame[3]);
-		}
-	} else {
-		if(mousePressedX!=-1) {
-			// use the frame somehow
-			
-			if(mouseX==mousePressedX && mouseY==mousePressedY) {
-				
-				// reset frame
-				xAxisMin = 0;
-				xAxisMax = 1;
-				yAxisMin = 0;
-				yAxisMax = 1;
-				reset();
-				
-			} else {
-				
-				let frame = getMouseSelectionFrame();
-				
-				if(withinGraphFrame(frame[0],frame[1],border)
-						|| withinGraphFrame(frame[2],frame[3],border)
-						|| withinGraphFrame(frame[0],frame[3],border)
-						|| withinGraphFrame(frame[2],frame[1],border)) {
-					
-					// account for y-axis being flipped
-					frame[1] = height-max(mouseY,mousePressedY);
-					frame[3] = height-min(mouseY,mousePressedY);
-					
-					// restrict frame to within the graph
-					frame[0] = min(max(frame[0],border),width-border);
-					frame[1] = min(max(frame[1],border),height-border);
-					frame[2] = min(max(frame[2],border),width-border);
-					frame[3] = min(max(frame[3],border),height-border);
-					
-					// map frame to "actual" coordinates
-					frame[0] = (frame[0]-border)/(width-border*2)*(xAxisMax-xAxisMin)+xAxisMin;
-					frame[1] = (frame[1]-border)/(height-border*2)*(yAxisMax-yAxisMin)+yAxisMin;
-					frame[2] = (frame[2]-border)/(width-border*2)*(xAxisMax-xAxisMin)+xAxisMin;
-					frame[3] = (frame[3]-border)/(height-border*2)*(yAxisMax-yAxisMin)+yAxisMin;
-					
-					// apply
-					xAxisMin = frame[0];
-					xAxisMax = frame[2];
-					yAxisMin = frame[1];
-					yAxisMax = frame[3];
-					reset();
-				}
-			
+		
+		// zoom in by selecting a window
+		if(mouseIsPressed) {
+			if(mousePressedX==-1 && withinGraphFrame(mouseX,mouseY)) {
+				mousePressedX = mouseX;
+				mousePressedY = mouseY;
 			}
-			
-			mousePressedX = -1;
-			mousePressedY = -1;
+			if(mousePressedX!=-1) {
+				noFill();
+				stroke(255);
+				
+				// draw the selection frame
+				let frame = getMouseSelectionFrame();
+				rect(frame[0],frame[1],frame[2]-frame[0],frame[3]-frame[1]);
+				stroke(255,128);
+				line(frame[0],0,frame[0],height);
+				line(frame[2],0,frame[2],height);
+				line(0,frame[1],width,frame[1]);
+				line(0,frame[3],width,frame[3]);
+			}
+		} else {
+			if(mousePressedX!=-1) {
+				// use the frame somehow
+				
+				if(mouseX==mousePressedX && mouseY==mousePressedY) {
+					
+					// reset frame
+					xAxisMin = 0;
+					xAxisMax = 1;
+					yAxisMin = 0;
+					yAxisMax = 1;
+					reset();
+					
+				} else {
+					
+					let frame = getMouseSelectionFrame();
+					
+					if(withinGraphFrame(frame[0],frame[1],border)
+							|| withinGraphFrame(frame[2],frame[3],border)
+							|| withinGraphFrame(frame[0],frame[3],border)
+							|| withinGraphFrame(frame[2],frame[1],border)) {
+						
+						// account for y-axis being flipped
+						frame[1] = height-max(mouseY,mousePressedY);
+						frame[3] = height-min(mouseY,mousePressedY);
+						
+						// restrict frame to within the graph
+						frame[0] = min(max(frame[0],border),width-border);
+						frame[1] = min(max(frame[1],border),height-border);
+						frame[2] = min(max(frame[2],border),width-border);
+						frame[3] = min(max(frame[3],border),height-border);
+						
+						// map frame to "actual" coordinates
+						frame[0] = (frame[0]-border)/(width-border*2)*(xAxisMax-xAxisMin)+xAxisMin;
+						frame[1] = (frame[1]-border)/(height-border*2)*(yAxisMax-yAxisMin)+yAxisMin;
+						frame[2] = (frame[2]-border)/(width-border*2)*(xAxisMax-xAxisMin)+xAxisMin;
+						frame[3] = (frame[3]-border)/(height-border*2)*(yAxisMax-yAxisMin)+yAxisMin;
+						
+						// apply
+						xAxisMin = frame[0];
+						xAxisMax = frame[2];
+						yAxisMin = frame[1];
+						yAxisMax = frame[3];
+						reset();
+					}
+				
+				}
+				
+				mousePressedX = -1;
+				mousePressedY = -1;
+			}
 		}
+			
 	}
 	
 	//document.title = "QKD Binning Demo | FPS: "+frameRate().toFixed(1);
